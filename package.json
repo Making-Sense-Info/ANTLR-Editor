@@ -14,7 +14,9 @@
         "_format": "prettier '**/*.{ts,tsx,json,md}'",
         "format": "npm run _format -- --write",
         "format:check": "npm run _format -- --list-different",
-        "link-in-app": "ts-node --skipProject scripts/link-in-app.ts"
+        "link-in-app": "ts-node --skipProject scripts/link-in-app.ts",
+        "storybook": "start-storybook -p 9999",
+        "build-storybook": "build-storybook"
     },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -45,19 +47,32 @@
     "keywords": [],
     "homepage": "https://github.com/Making-Sense-Info/ANTLR-Editor",
     "devDependencies": {
+        "@storybook/addon-actions": "^7.4.5",
+        "@storybook/addon-essentials": "^7.4.5",
+        "@storybook/addon-links": "^7.4.5",
+        "@storybook/addons": "^7.4.5",
+        "@storybook/builder-webpack5": "^7.4.5",
+        "@storybook/manager-webpack5": "^6.5.16",
+        "@storybook/preset-create-react-app": "^7.4.5",
+        "@storybook/react": "^7.4.5",
+        "@storybook/theming": "^7.4.5",
         "@types/node": "^20.2.1",
+        "@types/react": "^18.2.6",
         "@typescript-eslint/eslint-plugin": "^5.59.6",
         "@typescript-eslint/parser": "^5.59.6",
         "eslint": "^8.41.0",
         "eslint-config-prettier": "^8.8.0",
+        "eslint-plugin-storybook": "^0.6.14",
         "husky": "^4.3.8",
         "lint-staged": "^11.1.1",
         "prettier": "^2.8.8",
-        "vitest": "^0.31.1",
-        "typescript": "^5.0.4",
-        "ts-node": "^10.9.1",
         "react": "^18.2.0",
-        "@types/react": "^18.2.6"
+        "react-dom": "^18.2.0",
+        "react-scripts": "^5.0.1",
+        "storybook-dark-mode": "^3.0.1",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.0.4",
+        "vitest": "^0.31.1"
     },
     "publishConfig": {
         "access": "public"
