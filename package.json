@@ -1,10 +1,10 @@
 {
-    "name": "#{REPO_NAME}#",
-    "version": "0.0.0",
-    "description": "#{DESC}#",
+    "name": "@making-sense-info/antlr-editor",
+    "version": "0.0.1",
+    "description": "ANTLR Typescript editor",
     "repository": {
         "type": "git",
-        "url": "git://github.com/#{USER_OR_ORG}#/#{REPO_NAME}#.git"
+        "url": "git://github.com/Making-Sense-Info/ANTLR-Editor.git"
     },
     "scripts": {
         "build": "tsc",
@@ -20,8 +20,7 @@
     "types": "dist/index.d.ts",
     "exports": {
         ".": "./dist/index.js",
-        "./*": "./dist/*.js",
-        "./tools": "./dist/tools/index.js"
+        "./*": "./dist/*.js"
     },
     "lint-staged": {
         "*.{ts,tsx}": [
@@ -36,7 +35,7 @@
             "pre-commit": "lint-staged -v"
         }
     },
-    "author": "u/#{USER_OR_ORG}#",
+    "author": "u/NicoLaval",
     "license": "MIT",
     "files": [
         "src/",
@@ -44,10 +43,9 @@
         "!dist/tsconfig.tsbuildinfo"
     ],
     "keywords": [],
-    "homepage": "https://github.com/#{USER_OR_ORG}#/#{REPO_NAME}#",
+    "homepage": "https://github.com/Making-Sense-Info/ANTLR-Editor",
     "devDependencies": {
         "@types/node": "^20.2.1",
-        "typescript": "^5.0.4",
         "@typescript-eslint/eslint-plugin": "^5.59.6",
         "@typescript-eslint/parser": "^5.59.6",
         "eslint": "^8.41.0",
@@ -56,6 +54,7 @@
         "lint-staged": "^11.1.1",
         "prettier": "^2.8.8",
         "vitest": "^0.31.1",
+        "typescript": "^5.0.4",
         "ts-node": "^10.9.1",
         "react": "^18.2.0",
         "@types/react": "^18.2.6"
