@@ -1,4 +1,4 @@
-const config = {
+module.exports = {
     stories: ["../src/stories/**/*.stories.mdx", "../src/stories/**/*.stories.@(ts|tsx)"],
     addons: [
         "@storybook/addon-links",
@@ -9,7 +9,5 @@ const config = {
     core: {
         "builder": "webpack5"
     },
-    staticDirs: ["../.storybook/static"]
+    staticDirs: ["./static"]
 };
-
-export default config;

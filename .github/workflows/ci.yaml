@@ -1,4 +1,4 @@
-name: ci
+name: ANTLR Editor CI
 on:
     push:
         branches:
@@ -35,6 +35,42 @@ jobs:
             - uses: bahmutov/npm-install@v1
             - run: yarn build
             - run: yarn test
+
+    build_storybook:
+        name: Build Storybook app
+        needs: test
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.ref }}
+            - uses: actions/setup-node@v3
+            - name: Build
+              run: |
+                  yarn
+                  yarn build-storybook
+            - name: Upload Storybook artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: storybook-static
+                  path: storybook-static/
+
+    deploy_storybook:
+        name: Deploy Storybook on Github Pages
+        needs: build_storybook
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Download Storybook artifact
+              uses: actions/download-artifact@v3
+              with:
+                  name: storybook-static
+            - name: Deploy
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: .
 
     check_if_version_upgraded:
         name: Check if version upgrade

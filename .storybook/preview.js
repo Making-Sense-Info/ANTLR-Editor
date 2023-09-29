@@ -1,7 +1,6 @@
 import { darkTheme, lightTheme } from "./customTheme";
 import { DocsContainer } from "./DocsContainer";
 
-const order = ["intro-", "quick-start-", "guidelines-", "components-"];
 export const parameters = {
     "actions": { argTypesRegex: "^on[A-Z].*" },
     "controls": {
@@ -14,7 +13,8 @@ export const parameters = {
     "darkMode": {
         "stylePreview": true,
         "light": lightTheme,
-        "dark": darkTheme
+        "dark": darkTheme,
+        "current": "dark"
     },
     "docs": {
         container: DocsContainer

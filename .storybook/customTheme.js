@@ -1,5 +1,4 @@
 import { create } from "@storybook/theming";
-import logo from "./static/onyxiaLogo.png";
 import antlrLogo from "./static/antlr-logo.svg";
 
 export const darkTheme = create({
