@@ -61,6 +61,8 @@ jobs:
         needs: build_storybook
         # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
         steps:
             - name: Download Storybook artifact
               uses: actions/download-artifact@v3
