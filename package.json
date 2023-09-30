@@ -59,7 +59,7 @@
         "@storybook/react": "^6.5.9",
         "@storybook/theming": "^6.5.9",
         "@types/node": "^20.2.1",
-        "@types/react": "^18.2.6",
+        "@types/react": "^18.2.23",
         "@typescript-eslint/eslint-plugin": "^6.7.3",
         "@typescript-eslint/parser": "^6.7.3",
         "babel-plugin-named-exports-order": "0.0.2",
@@ -78,6 +78,9 @@
         "typescript": "^5.0.4",
         "vitest": "^0.34.5",
         "webpack": "5.88.2"
+    },
+    "resolutions": {
+        "@storybook/react-docgen-typescript-plugin": "1.0.6--canary.9.cd77847.0"
     },
     "publishConfig": {
         "access": "public"
