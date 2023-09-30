@@ -12,6 +12,7 @@ export default {
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 export const Sample = {
     args: {
-        label: "I'm the ANTLR Editor :o"
+        label: "I'm the ANTLR Editor :o",
+        color: "#9211ff"
     }
 };

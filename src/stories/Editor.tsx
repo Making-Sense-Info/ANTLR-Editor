@@ -3,6 +3,6 @@ export type EditorProps = {
     color: string;
 };
 
-const Editor = ({ label, color = "white" }: EditorProps) => <div style={{ color }}>{label}</div>;
+const Editor = ({ label, color }: EditorProps) => <div style={{ color }}>{label}</div>;
 
 export default Editor;

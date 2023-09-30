@@ -7,12 +7,12 @@ export const darkTheme = create({
     "brandImage": antlrLogo,
     "brandUrl": "https://github.com/Making-Sense-Info/ANTLR-Editor",
 
-    "appBg": "#0A192E",
-    "appContentBg": "#0A192E",
+    "appBg": "#323137",
+    "appContentBg": "#323137",
 
-    "barBg": "#0A192E",
+    "barBg": "#323137",
 
-    "colorSecondary": "#FBD616",
+    "colorSecondary": "#9211ff",
 
     "textColor": "#f1f0eb",
     "textInverseColor": "#ffc0cb",
@@ -27,11 +27,11 @@ export const lightTheme = create({
     "brandImage": antlrLogo,
     "brandUrl": "https://github.com/Making-Sense-Info/ANTLR-Editor",
 
-    "appBg": "#F5F7FA",
-    "appContentBg": "#F5F7FA",
-    "barBg": "#F5F7FA",
+    "appBg": "#f2f2f3",
+    "appContentBg": "#f2f2f3",
+    "barBg": "#f2f2f3",
 
-    "colorSecondary": "#3A4657",
+    "colorSecondary": "#9211ff",
 
     "textColor": "#0F417A",
     "textInverseColor": "#ffc0cb",
