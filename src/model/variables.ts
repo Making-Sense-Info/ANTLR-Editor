@@ -2,13 +2,13 @@ export enum VariableType {
     STRING = "STRING",
     INTEGER = "INTEGER",
     NUMBER = "NUMBER",
-    BOOLEAN = "BOOLEAN",
+    BOOLEAN = "BOOLEAN"
 }
 
 export enum VariableRole {
     IDENTIFIER = "IDENTIFIER",
     MEASURE = "MEASURE",
-    DIMENSION = "DIMENSION",
+    DIMENSION = "DIMENSION"
 }
 
 export interface Variable {

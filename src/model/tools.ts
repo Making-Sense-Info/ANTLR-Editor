@@ -9,5 +9,5 @@ export interface Tools {
     Lexer: typeof Lexer;
     Parser: typeof Parser;
     getSuggestionsFromRange?: (range: IRange) => Languages.CompletionItem[];
-    monarchDefinition?: string;
+    monarchDefinition?: object;
 }

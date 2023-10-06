@@ -1,1 +1,1 @@
-export * from "./myObject";
+export { default as AntlrEditor } from "./Editor";

@@ -6,7 +6,7 @@ export const KEYWORD = languages.CompletionItemKind.Keyword;
 export const SNIPPET = languages.CompletionItemKind.Snippet;
 export const INSERT_AS_SNIPPET = languages.CompletionItemInsertTextRule.InsertAsSnippet;
 
-export const getSuggestions = (range: IRange) => {
+export const getSuggestionsFromRange = (range: IRange) => {
     return [
         {
             label: "eval",

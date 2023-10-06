@@ -14,7 +14,7 @@ export class RuleTokenizer<L extends Lexer, P extends Parser> {
         tokens: [],
         parens: [],
         atom: [],
-        modifier: undefined,
+        modifier: undefined
     };
 
     constructor(vocabulary: VocabularyPack<L, P>) {
@@ -39,7 +39,7 @@ export class RuleTokenizer<L extends Lexer, P extends Parser> {
                             if (lindex !== this.context.tokens.length - 2) {
                                 const rparen = new RuleToken(
                                     TokenType.Rparen,
-                                    this.context.parens.length,
+                                    this.context.parens.length
                                 );
                                 lparen.sibling = rparen;
                                 rparen.sibling = lparen;
@@ -63,7 +63,7 @@ export class RuleTokenizer<L extends Lexer, P extends Parser> {
                             this.addToken(value);
                             Log.warn(
                                 "Unknown operator token " + last.name + " recognized as identifier",
-                                "RuleTokenizer",
+                                "RuleTokenizer"
                             );
                         }
                         break;
@@ -104,7 +104,7 @@ export class RuleTokenizer<L extends Lexer, P extends Parser> {
                 TokenType.Operand,
                 TokenType.Rule,
                 TokenType.Rparen,
-                TokenType.Unknown,
+                TokenType.Unknown
             ]);
             if (this.context.modifier) {
                 if (value === TokenType.Question && last) last.greedy = false;

@@ -1,2 +1,2 @@
-export { default as monarchTokens } from "./monarch-tokens.json";
-export { getSuggestions } from "./suggestions";
+export { default as monarchDefinition } from "./monarch-definition.json";
+export { getSuggestionsFromRange } from "./suggestions";
