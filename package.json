@@ -48,6 +48,7 @@
     "keywords": [],
     "homepage": "https://github.com/Making-Sense-Info/ANTLR-Editor",
     "devDependencies": {
+        "@making-sense/vtl-2-0-antlr-tools-ts": "^0.1.0",
         "@monaco-editor/react": "^4.5.2",
         "@storybook/addon-actions": "^6.5.9",
         "@storybook/addon-essentials": "^6.5.9",
