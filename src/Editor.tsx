@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { validate } from "./utils/ParserFacade";
@@ -42,13 +42,6 @@ const Editor = ({
     const monacoRef = useRef<typeof Monaco | null>(null);
     const [vars] = useState(buildVariables(variables));
     const [sdmxRes] = useState(sdmxResult);
-
-    useEffect(() => {
-        return () => {
-            console.log("dead");
-            editorRef?.current?.getModel()?.dispose();
-        };
-    }, []);
 
     const onMount = (editor: Monaco.editor.IStandaloneCodeEditor, mon: typeof Monaco, t: Tools) => {
         editorRef.current = editor;
