@@ -4,5 +4,5 @@ export enum StatementType {
     Operator = "o",
     Keyword = "k",
     Operand = "d",
-    Unknown = "u",
+    Unknown = "u"
 }

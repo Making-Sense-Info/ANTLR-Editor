@@ -2,7 +2,7 @@ export enum MultiplyMode {
     None,
     Optional,
     Onemore,
-    Zeromore,
+    Zeromore
 }
 
 export function mergeMultiplyMode(first: MultiplyMode, second: MultiplyMode): MultiplyMode {

@@ -7,7 +7,7 @@ export class Log {
     static colors: { [index: string]: string } = {
         info: "lightblue",
         warning: "orange",
-        error: "red",
+        error: "red"
     };
 
     private static message(level: string, message: string, source?: string) {

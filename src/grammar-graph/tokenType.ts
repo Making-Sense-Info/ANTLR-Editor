@@ -15,5 +15,5 @@ export enum TokenType {
     Identifier = "i",
     Label = "l",
     Rule = "r",
-    Unknown = "u",
+    Unknown = "u"
 }

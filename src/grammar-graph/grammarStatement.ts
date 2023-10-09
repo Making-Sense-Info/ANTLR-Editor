@@ -126,7 +126,7 @@ export class GrammarStatement {
                     } else {
                         Log.warn(
                             "Unexpected token " + token.name + " of type " + token.type,
-                            "GrammarStatement",
+                            "GrammarStatement"
                         );
                     }
             }
@@ -169,7 +169,7 @@ export class GrammarStatement {
             default:
                 Log.warn(
                     "Unexpected token " + token.name + " of type " + token.type,
-                    "GrammarStatement",
+                    "GrammarStatement"
                 );
         }
     }
@@ -215,7 +215,7 @@ export class GrammarStatement {
     public resolveStatements(
         rules: Map<string, GrammarStatement>,
         operators: Map<string, GrammarStatement>,
-        visited: Map<string, GrammarStatement>,
+        visited: Map<string, GrammarStatement>
     ) {
         if (this.name) {
             if (visited.has(this.name)) return;

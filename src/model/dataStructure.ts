@@ -11,5 +11,5 @@ export enum FinalStructureEnum {
     TRUE = "TRUE",
     FALSE = "FALSE",
     UNSET = "UNSET",
-    ALL = "ALL",
+    ALL = "ALL"
 }

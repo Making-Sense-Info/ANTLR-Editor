@@ -32,7 +32,7 @@ export class GrammarGraph<L extends Lexer, P extends Parser> {
                 // Escape all RegExp special characters first
                 processed = processed.replace(
                     new RegExp(literal.replace(rgxEscape, rgxReplace), "g"),
-                    " " + symbolic + " ",
+                    " " + symbolic + " "
                 );
             }
         });
@@ -44,18 +44,13 @@ export class GrammarGraph<L extends Lexer, P extends Parser> {
             .forEach((value, index) => {
                 let colon = value.indexOf(":");
                 const name = this.tokenizer.ruleName(value.substr(0, colon).trim(), index);
-                const tokens = this.tokenizer.tokenize(
-                    value
-                        .substr(++colon)
-                        .trim()
-                        .replace(/ +/g, " "),
-                );
+                const tokens = this.tokenizer.tokenize(value.substr(++colon).trim().replace(/ +/g, " "));
                 this.addRule(name, tokens);
             });
 
         // Resolve remaining statements and collect operators
         this.rules.forEach(rule =>
-            rule.resolveStatements(this.rules, this.operators, new Map<string, GrammarStatement>()),
+            rule.resolveStatements(this.rules, this.operators, new Map<string, GrammarStatement>())
         );
 
         // Resolve syntax of functions and operators
@@ -85,7 +80,7 @@ export class GrammarGraph<L extends Lexer, P extends Parser> {
                 kind: entry.completionKind(),
                 insertText: entry.snippet,
                 detail: entry.syntax,
-                documentation: "",
+                documentation: ""
             } as languages.CompletionItem;
         });
     }
