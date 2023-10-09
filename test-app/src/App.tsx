@@ -4,6 +4,13 @@ import { getSuggestionsFromRange, monarchDefinition } from "./vtl-monaco";
 
 const customTools = { ...tools, getSuggestionsFromRange, monarchDefinition };
 
-const App = (props: any) => <AntlrEditor {...props} tools={customTools} />;
+const App = () => (
+    <AntlrEditor
+        onListErrors={e => {
+            console.log(e);
+        }}
+        tools={customTools}
+    />
+);
 
 export default App;
