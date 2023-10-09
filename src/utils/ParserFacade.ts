@@ -1,10 +1,4 @@
-import {
-    ANTLRErrorListener,
-    CharStreams,
-    CommonTokenStream,
-    DefaultErrorStrategy,
-    Recognizer
-} from "antlr4ts";
+import { ANTLRErrorListener, CharStreams, CommonTokenStream } from "antlr4ts";
 import { Log } from "./log";
 
 // @ts-ignore VALID
@@ -67,13 +61,6 @@ const createParserFromLexer = (Parser: any) => (lexer: any) => {
     return new Parser(tokens);
 };
 
-class ErrorStrategy extends DefaultErrorStrategy {
-    // @ts-ignore MEH
-    singleTokenDeletion(recognizer: Recognizer) {
-        return super.singleTokenDeletion(recognizer);
-    }
-}
-
 export const validate =
     ({ Lexer, Parser, initialRule }: any) =>
     (input: string | undefined): Error[] => {
@@ -86,8 +73,6 @@ export const validate =
         const parser = createParserFromLexer(Parser)(lexer);
         parser.removeErrorListeners();
         parser.addErrorListener(new CollectorErrorListener(errors));
-        // @ts-ignore TODO
-        parser._errHandler = new ErrorStrategy();
         parser[initialRule]();
         return errors;
     };
