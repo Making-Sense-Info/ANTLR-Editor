@@ -1,6 +1,6 @@
 {
-    "name": "@making-sense-info/antlr-editor",
-    "version": "0.0.1",
+    "name": "@making-sense/antlr-editor",
+    "version": "0.1.0",
     "description": "ANTLR Typescript editor",
     "repository": {
         "type": "git",
@@ -15,9 +15,10 @@
         "_format": "prettier \"**/*.{ts,tsx,json,md}\"",
         "format": "npm run _format -- --write",
         "format:check": "npm run _format -- --list-different",
-        "link-in-app": "ts-node --skipProject scripts/link-in-app.ts",
         "storybook": "start-storybook -p 9999",
-        "build-storybook": "build-storybook"
+        "build-storybook": "build-storybook",
+        "link-in-app": "yarn build && (ts-node --skipProject scripts/link-in-app.ts & yarn build -w)",
+        "start-test-app": "yarn build && ts-node --skipProject scripts/link-in-test-app.ts && ((cd test-app && rm -rf node_modules/.cache && yarn start) & yarn build -w)"
     },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -48,7 +49,7 @@
     "keywords": [],
     "homepage": "https://github.com/Making-Sense-Info/ANTLR-Editor",
     "devDependencies": {
-        "@making-sense/vtl-2-0-antlr-tools-ts": "^0.1.0",
+        "@making-sense/vtl-2-0-antlr-tools-ts": "^0.2.2",
         "@monaco-editor/react": "^4.5.2",
         "@storybook/addon-actions": "^6.5.9",
         "@storybook/addon-essentials": "^6.5.9",
@@ -82,7 +83,6 @@
         "ts-node": "^10.9.1",
         "typescript": "^5.0.4",
         "vitest": "^0.34.5",
-        "vtl-2-0-antlr-tools-ts": "^0.1.8",
         "webpack": "5.88.2"
     },
     "resolutions": {

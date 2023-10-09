@@ -1922,12 +1922,10 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@making-sense/vtl-2-0-antlr-tools-ts@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-0-antlr-tools-ts/-/vtl-2-0-antlr-tools-ts-0.1.0.tgz#423f56f5c5404f9497448dbbea440d10c8b27054"
-  integrity sha512-COlc8bP+/joMBd/BtNVi/FObb8e1IixJxZAns31dxu14nZOORT0axR2U2UoMQc0VAxgntCFx24gYjD2ZGwCfzA==
-  dependencies:
-    antlr4ts "^0.5.0-alpha.4"
+"@making-sense/vtl-2-0-antlr-tools-ts@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-0-antlr-tools-ts/-/vtl-2-0-antlr-tools-ts-0.2.2.tgz#63b494bedc0e6fa1952547c45468362e63f361fa"
+  integrity sha512-W22ZpGLxCSrWlkSbSxhVJUFpu1YlTsLLqofmzUJg0rEzQmEPUVjBt3lyfhBOM3CUmzqZG4YXJAzLax4+dmkoSQ==
 
 "@mdx-js/mdx@^1.6.22":
   version "1.6.22"
@@ -15555,11 +15553,6 @@ vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
-
-vtl-2-0-antlr-tools-ts@^0.1.8:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/vtl-2-0-antlr-tools-ts/-/vtl-2-0-antlr-tools-ts-0.1.8.tgz#b1e6f127fb65ab5fdde3864b81dc203140d3003b"
-  integrity sha512-uNEXAuYez8jdUrpWFPbMposmudljtFpKc0lYV2Pfn9d0puqUhb8vgtH3ifX9nroIw7PpWf+CtGw0hBmy6jaJCA==
 
 w3c-hr-time@^1.0.2:
   version "1.0.2"

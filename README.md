@@ -5,3 +5,17 @@
 [![Storybook](https://cdn.jsdelivr.net/gh/storybookjs/brand@main/badge/badge-storybook.svg)](https://making-sense-info.github.io/ANTLR-Editor)
 
 ANTLR Typescript editor.
+
+## Developement mode
+
+```bash
+git clone https://github.com/Making-Sense-Info/ANTLR-Editor
+cd ANTLR-Editor
+yarn
+
+# Start the test app in watch mode
+yarn start-test-app
+
+# Link in an external project in watch mode
+yarn link-in-app test-app # ../YOUR-APP is supposed to exist
+```
