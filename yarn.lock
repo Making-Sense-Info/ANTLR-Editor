@@ -1922,10 +1922,10 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@making-sense/vtl-2-0-antlr-tools-ts@^0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-0-antlr-tools-ts/-/vtl-2-0-antlr-tools-ts-0.2.3.tgz#e2419ffe9f3b9d9cc57f9c4dd769c22f7afc7c3a"
-  integrity sha512-8Cu4p6usoH8Lht+rSuQGdA7+xahA0CTHZ6fKrLJwEk1MfT56CdNYwEabgazL9uzLVwZPQ1BpnswEnbuXBMep/w==
+"@making-sense/vtl-2-0-antlr-tools-ts@^0.2.6":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-0-antlr-tools-ts/-/vtl-2-0-antlr-tools-ts-0.2.6.tgz#fe2704bcdb91919e75256af69ba2db6de4d8810b"
+  integrity sha512-MyNRrkEFBxZKOVqgWCGNTYnZnvjQ9LukpS+ru2z3CEdEj508Er2CJYa3kmTFUT+SSkomeb5nHh0zIYm6nYY/nw==
 
 "@mdx-js/mdx@^1.6.22":
   version "1.6.22"
