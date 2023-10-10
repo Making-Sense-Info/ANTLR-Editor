@@ -17,7 +17,7 @@ yarn add @making-sense/antlr-editor antlr4ts monaco-editor @monaco-editor/react
 ### VTLEditor
 
 ```bash
-yarn add vtl-2-0-antlr-tools-ts
+yarn add @making-sense/vtl-2-0-antlr-tools-ts
 ```
 
 ```javascript
