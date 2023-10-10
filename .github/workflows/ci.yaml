@@ -45,8 +45,13 @@ jobs:
             - uses: actions/checkout@v3
               with:
                   ref: ${{ github.ref }}
+            - name: Upload sample files
+              uses: actions/upload-artifact@v3
+              with:
+                  name: samples
+                  path: samples/
             - uses: actions/setup-node@v3
-            - name: Build
+            - name: Build Storybook
               run: |
                   yarn
                   yarn build-storybook
@@ -64,6 +69,11 @@ jobs:
         permissions:
             contents: write
         steps:
+            - name: Download samples artifact
+              uses: actions/download-artifact@v3
+              with:
+                  name: samples
+                  path: samples
             - name: Download Storybook artifact
               uses: actions/download-artifact@v3
               with:
