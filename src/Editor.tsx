@@ -100,7 +100,7 @@ const Editor = ({
             Promise.all(variablesInputURLs.map(v => f(v)))
                 .then(res =>
                     Promise.all(res.map(r => r.json())).then(res => {
-                        const uniqueVars = buildUniqueVariables(res)
+                        const uniqueVars = buildUniqueVariables(res);
                         setVars(v => [...v, ...uniqueVars]);
                         setReady(true);
                     })
