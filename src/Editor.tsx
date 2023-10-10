@@ -12,7 +12,6 @@ type EditorProps = {
     customFetcher?: (url: string) => Promise<any>;
     variables?: Variables;
     variablesInputURLs?: string[];
-    SDMXInputURLs?: string[];
     tools: Tools;
     onListErrors?: (errors: Error[]) => void;
     height?: string;
@@ -28,7 +27,6 @@ const Editor = ({
     customFetcher,
     variables,
     variablesInputURLs,
-    SDMXInputURLs,
     tools,
     height = "50vh",
     width = "100%",
@@ -109,7 +107,7 @@ const Editor = ({
                     setReady(true);
                 });
         }
-    }, [variablesInputURLs, SDMXInputURLs]);
+    }, [variablesInputURLs]);
 
     if (!ready) return null;
 

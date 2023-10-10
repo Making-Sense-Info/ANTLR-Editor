@@ -52,8 +52,10 @@ export const getEditorWillMount =
         const { id } = tools;
         return (monaco: typeof EditorApi) => {
             monaco.languages.register({ id });
-            const tokensProvider: TokensProvider = new TokensProvider(tools);
-            monaco.languages.setMonarchTokensProvider(id, tokensProvider.monarchLanguage());
+            if (tools.monarchDefinition) {
+                const tokensProvider: TokensProvider = new TokensProvider(tools);
+                monaco.languages.setMonarchTokensProvider(id, tokensProvider.monarchLanguage());
+            }
             monaco.editor.defineTheme(id, getTheme());
             monaco.editor.defineTheme("vtl-default", getVtlTheme("vtl-default"));
             monaco.editor.defineTheme("vtl-light", getVtlTheme("vtl-light"));
