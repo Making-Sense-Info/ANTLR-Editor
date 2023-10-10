@@ -26,7 +26,7 @@ import { AntlrEditor as VTLEditor } from "@making-sense/antlr-editor";
 import { getSuggestionsFromRange, monarchDefinition } from "./vtl-monaco";
 import * as VTLTools from "@making-sense/vtl-2-0-antlr-tools-ts";
 
-const customTools = { ...tools, getSuggestionsFromRange, monarchDefinition };
+const customTools = { ...VTLTools, getSuggestionsFromRange, monarchDefinition };
 
 const Editor = () => {
     return <VTLEditor tools={customTools} />;
