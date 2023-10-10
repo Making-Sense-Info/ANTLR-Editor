@@ -1,0 +1,4 @@
+[
+    { "name": "var1_from_file_2", "type": "STRING", "role": "IDENTIFIER" },
+    { "name": "var2_from_file_2", "type": "INTEGER", "role": "MEASURE" }
+]
