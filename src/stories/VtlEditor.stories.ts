@@ -40,8 +40,15 @@ const variables = {
 };
 
 export const Enriched = {
-    args: { variables },
+    args: {
+        variables,
+        variablesInputURLs: [
+            "https://raw.githubusercontent.com/Making-Sense-Info/ANTLR-Editor/gh-pages/samples/variablesInputFile1.json",
+            "https://raw.githubusercontent.com/Making-Sense-Info/ANTLR-Editor/gh-pages/samples/variablesInputFile2.json"
+        ]
+    },
     argTypes: {
-        variables: { control: "object" }
+        variables: { control: "object" },
+        variablesInputURLs: { control: "object" }
     }
 };

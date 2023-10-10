@@ -7,8 +7,7 @@ import { createLexer, createParser } from "./ParserFacade";
 import { TokensProvider } from "./tokensProvider";
 import { VocabularyPack } from "./vocabularyPack";
 import { VARIABLE } from "./constants";
-import { Tools, SdmxResult, Variable } from "../model";
-import { fromISdmxResult } from "./completionItemMapper";
+import { Tools, Variable } from "../model";
 
 export const getTheme = (): EditorApi.editor.IStandaloneThemeData => {
     return {
@@ -49,15 +48,7 @@ let completionItemDispose: IDisposable | undefined = undefined;
 
 export const getEditorWillMount =
     (tools: Tools) =>
-    ({
-        variables,
-        sdmxResult,
-        editor
-    }: {
-        variables: Variable[];
-        sdmxResult: SdmxResult | undefined;
-        editor: Monaco.editor.IStandaloneCodeEditor;
-    }) => {
+    ({ variables, editor }: { variables: Variable[]; editor: Monaco.editor.IStandaloneCodeEditor }) => {
         const { id } = tools;
         return (monaco: typeof EditorApi) => {
             monaco.languages.register({ id });
@@ -74,8 +65,7 @@ export const getEditorWillMount =
             }
             completionItemDispose = monaco.languages.registerCompletionItemProvider(id, {
                 provideCompletionItems: getSuggestions(tools, {
-                    variables,
-                    sdmxResult
+                    variables
                 })
             });
 
@@ -163,30 +153,7 @@ export const getVtlTheme = (name: string): EditorApi.editor.IStandaloneThemeData
     return { base: "vs", colors: {}, inherit: true, rules: [] };
 };
 
-function removeItemsFromList<T>(items: T[], list: T[]): T[] {
-    return list.filter(val => !items.includes(val));
-}
-
-const removeCodeListsFromList = (importedDsd: SdmxResult, vars: string[]) => {
-    const codeListsId: string[] = importedDsd.dimension.codeLists
-        .concat(importedDsd.attribute.codeLists)
-        .map(cl => cl.structureId);
-    const textsId: string[] = importedDsd.dimension.texts
-        .concat(importedDsd.attribute.texts)
-        .map(cl => cl.id);
-    const listToRemove = [
-        ...codeListsId,
-        ...textsId,
-        importedDsd.timeDimension,
-        importedDsd.primaryMeasure
-    ];
-    return removeItemsFromList(listToRemove, vars);
-};
-
-const getSuggestions = (
-    tools: Tools,
-    { variables, sdmxResult }: { variables?: Variable[]; sdmxResult?: SdmxResult }
-): any => {
+const getSuggestions = (tools: Tools, { variables }: { variables?: Variable[] }): any => {
     return function (model: editor.ITextModel, position: Position) {
         const textUntilPosition = model.getValueInRange({
             startLineNumber: 1,
@@ -220,13 +187,6 @@ const getSuggestions = (
                 : buildGrammarGraph(tools).suggestions();
         uniquetext = removeLanguageSyntaxFromList(uniquetext, suggestionList);
 
-        let mappedCodeLists: languages.CompletionItem[] = [];
-
-        if (sdmxResult) {
-            uniquetext = removeCodeListsFromList(sdmxResult, uniquetext);
-            mappedCodeLists = fromISdmxResult(sdmxResult, range);
-        }
-
         const array = uniquetext.map(w => {
             return {
                 label: w,
@@ -241,7 +201,7 @@ const getSuggestions = (
             range
         }));
         return {
-            suggestions: [...array, ...vars, ...suggestionList, ...mappedCodeLists]
+            suggestions: [...array, ...vars, ...suggestionList]
         };
     };
 

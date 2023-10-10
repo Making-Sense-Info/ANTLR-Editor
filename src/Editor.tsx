@@ -1,23 +1,19 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { validate } from "./utils/ParserFacade";
 import { getEditorWillMount } from "./utils/providers";
-import { Tools, Error, CursorPosition, Variables, SdmxResult } from "./model";
-import { buildVariables } from "./utils/variables";
+import { Tools, Error, Variables } from "./model";
+import { buildVariables, buildUniqueVariables } from "./utils/variables";
 
 type EditorProps = {
     script?: string;
     setScript?: (value: string) => void;
-    // customFetcher?: (url: string) => Promise<any>;
-    sdmxResult?: SdmxResult;
-    // sdmxResultURL?: string;
-    // readOnly?: boolean;
+    customFetcher?: (url: string) => Promise<any>;
     variables?: Variables;
-    // variableURLs: string[];
+    variablesInputURLs?: string[];
+    SDMXInputURLs?: string[];
     tools: Tools;
-    // options: Options;
-    onCursorChange?: (position: CursorPosition) => void;
     onListErrors?: (errors: Error[]) => void;
     height?: string;
     width?: string;
@@ -29,9 +25,10 @@ const Editor = ({
     script,
     setScript,
     onListErrors,
-    onCursorChange,
+    customFetcher,
     variables,
-    sdmxResult,
+    variablesInputURLs,
+    SDMXInputURLs,
     tools,
     height = "50vh",
     width = "100%",
@@ -40,8 +37,8 @@ const Editor = ({
 }: EditorProps) => {
     const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
     const monacoRef = useRef<typeof Monaco | null>(null);
-    const [vars] = useState(buildVariables(variables));
-    const [sdmxRes] = useState(sdmxResult);
+    const [ready, setReady] = useState<boolean>(false);
+    const [vars, setVars] = useState(buildVariables(variables));
 
     const onMount = (editor: Monaco.editor.IStandaloneCodeEditor, mon: typeof Monaco, t: Tools) => {
         editorRef.current = editor;
@@ -60,17 +57,6 @@ const Editor = ({
                         contentChangeTO = undefined;
                     }, 200);
                 }
-            }
-        });
-
-        editor.onDidChangeCursorPosition(() => {
-            if (onCursorChange) {
-                const position = editor.getPosition();
-                if (position)
-                    onCursorChange({
-                        line: position.lineNumber,
-                        column: position.column
-                    });
             }
         });
     };
@@ -107,6 +93,26 @@ const Editor = ({
         [onListErrors]
     );
 
+    useEffect(() => {
+        if (!Array.isArray(variablesInputURLs) || variablesInputURLs.length === 0) setReady(true);
+        const f = customFetcher || fetch;
+        if (variablesInputURLs && variablesInputURLs.length > 0 && !ready) {
+            Promise.all(variablesInputURLs.map(v => f(v)))
+                .then(res =>
+                    Promise.all(res.map(r => r.json())).then(res => {
+                        const uniqueVars = buildUniqueVariables(res)
+                        setVars(v => [...v, ...uniqueVars]);
+                        setReady(true);
+                    })
+                )
+                .catch(() => {
+                    setReady(true);
+                });
+        }
+    }, [variablesInputURLs, SDMXInputURLs]);
+
+    if (!ready) return null;
+
     return (
         <MonacoEditor
             value={script}
@@ -117,7 +123,6 @@ const Editor = ({
                 onMount(e, m, tools);
                 getEditorWillMount(tools)({
                     variables: vars,
-                    sdmxResult: sdmxRes,
                     editor: e
                 })(m);
             }}
