@@ -20,8 +20,7 @@ yarn add @making-sense/antlr-editor antlr4ts monaco-editor @monaco-editor/react
 yarn add @making-sense/vtl-2-0-antlr-tools-ts
 ```
 
-```javascript
-import React, { useState } from "react";
+```typescript
 import { AntlrEditor as VTLEditor } from "@making-sense/antlr-editor";
 import { getSuggestionsFromRange, monarchDefinition } from "./vtl-monaco";
 import * as VTLTools from "@making-sense/vtl-2-0-antlr-tools-ts";
