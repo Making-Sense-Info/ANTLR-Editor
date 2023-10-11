@@ -14,6 +14,57 @@ ANTLR Typescript editor.
 yarn add @making-sense/antlr-editor antlr4ts monaco-editor @monaco-editor/react
 ```
 
+### Create React app
+
+As far as `antlr4ts` require some node modules which are no longer provided by `Webpack@5`, you have to complete the `webpack` configuration thanks to `react-app-rewired` (or `eject` your CRA application, what we will not recommend here), following these steps:
+
+-   Install `react-app-rewired`, `assert` and `util` as `devDependency`
+
+```bash
+yarn add -D react-app-rewired assert util
+```
+
+-   Override the create-react-app webpack config file
+
+At the root of your project, create the `config-overrides.js` file and add the following code to it:
+
+```javascript
+/*
+We use this file to in order to be able to use webpack plugin without ejecting from CRA.
+This file is picked up by react-app-rewired that we use in place of react-scripts
+*/
+
+module.exports = function override(config) {
+    if (!config.resolve.fallback) {
+        config.resolve.fallback = {};
+    }
+
+    config.resolve.fallback["assert"] = require.resolve("assert");
+    config.resolve.fallback["util"] = require.resolve("util");
+
+    if (!config.plugins) {
+        config.plugins = [];
+    }
+    return config;
+};
+```
+
+-   Switch the existing calls to `react-scripts` in your project scripts for start, build and test
+
+```diff
+  /* package.json */
+
+  "scripts": {
+-   "start": "react-scripts start",
++   "start": "react-app-rewired start",
+-   "build": "react-scripts build",
++   "build": "react-app-rewired build",
+-   "test": "react-scripts test",
++   "test": "react-app-rewired test",
+    "eject": "react-scripts eject"
+}
+```
+
 ### VTLEditor
 
 ```bash
@@ -35,6 +86,14 @@ export default Editor;
 ```
 
 ### Developement mode
+
+#### Storybook
+
+```bash
+yarn storybook
+```
+
+#### Linked app
 
 ```bash
 git clone https://github.com/Making-Sense-Info/ANTLR-Editor
