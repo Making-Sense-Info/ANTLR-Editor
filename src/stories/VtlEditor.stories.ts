@@ -6,16 +6,23 @@ export default {
     tags: ["autodocs"]
 };
 
-export const Default = {};
+export const Default = {
+    args: { initialRule: "start" },
+    argTypes: {
+        initialRule: { control: "select", options: ["start", "expr"] }
+    }
+};
 
 export const Styled = {
     args: {
+        initialRule: "start",
         theme: "vs-dark",
         height: "50vh",
         width: "80%",
         options: { lineNumbers: true, minimap: { enabled: true }, readOnly: false }
     },
     argTypes: {
+        initialRule: { control: "select", options: ["start", "expr"] },
         theme: { control: "select", options: ["vs-dark", "vs-light"] },
         options: { control: "object" }
     }
@@ -41,6 +48,7 @@ const variables = {
 
 export const Enriched = {
     args: {
+        initialRule: "start",
         variables,
         variablesInputURLs: [
             "https://raw.githubusercontent.com/Making-Sense-Info/ANTLR-Editor/gh-pages/samples/variablesInputFile1.json",
@@ -48,6 +56,7 @@ export const Enriched = {
         ]
     },
     argTypes: {
+        initialRule: { control: "select", options: ["start", "expr"] },
         variables: { control: "object" },
         variablesInputURLs: { control: "object" }
     }

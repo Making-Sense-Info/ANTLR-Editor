@@ -4,6 +4,10 @@ import { getSuggestionsFromRange, monarchDefinition } from "./vtl-monaco";
 
 const customTools = { ...tools, getSuggestionsFromRange, monarchDefinition };
 
-const EditorForStories = (props: any) => <Editor {...props} tools={customTools} />;
+const EditorForStories = (props: any) => {
+    const { initialRule = "start" } = props;
+    console.log(initialRule);
+    return <Editor {...props} tools={{ ...customTools, initialRule }} />;
+};
 
 export default EditorForStories;
