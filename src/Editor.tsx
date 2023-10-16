@@ -109,6 +109,10 @@ const Editor = ({
         }
     }, [variablesInputURLs]);
 
+    useEffect(() => {
+        parseContent(tools);
+    }, [tools.initialRule]);
+
     if (!ready) return null;
 
     return (
