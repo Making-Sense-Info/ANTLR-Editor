@@ -18,10 +18,10 @@ yarn add @making-sense/antlr-editor antlr4ts monaco-editor @monaco-editor/react
 
 As far as `antlr4ts` require some node modules which are no longer provided by `Webpack@5`, you have to complete the `webpack` configuration thanks to `react-app-rewired` (or `eject` your CRA application, what we will not recommend here), following these steps:
 
--   Install `react-app-rewired`, `assert` and `util` as `devDependency`
+-   Install `react-app-rewired`, `assert`, `path` and `util` as `devDependency`
 
 ```bash
-yarn add -D react-app-rewired assert util
+yarn add -D react-app-rewired assert path util
 ```
 
 -   Override the create-react-app webpack config file
@@ -40,6 +40,7 @@ module.exports = function override(config) {
     }
 
     config.resolve.fallback["assert"] = require.resolve("assert");
+    config.resolve.fallback["path"] = require.resolve("path");
     config.resolve.fallback["util"] = require.resolve("util");
 
     if (!config.plugins) {
