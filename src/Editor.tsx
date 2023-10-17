@@ -1,10 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import path from "path";
 import MonacoEditor from "@monaco-editor/react";
+import { loader } from "@monaco-editor/react";
 import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
+import * as monaco from "monaco-editor";
 import { validate } from "./utils/ParserFacade";
 import { getEditorWillMount } from "./utils/providers";
 import { Tools, Error, Variables } from "./model";
 import { buildVariables, buildUniqueVariables } from "./utils/variables";
+import { uriFromPath } from "./utils/monaco";
+
+loader.config({
+    paths: {
+        vs: uriFromPath(path.join(__dirname, "../node_modules/monaco-editor/min/vs"))
+    },
+    monaco
+});
 
 type EditorProps = {
     script?: string;
