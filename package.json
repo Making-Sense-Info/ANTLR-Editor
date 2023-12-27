@@ -1,6 +1,6 @@
 {
     "name": "@making-sense/antlr-editor",
-    "version": "0.2.1",
+    "version": "0.2.0",
     "description": "ANTLR Typescript editor",
     "repository": {
         "type": "git",
@@ -81,12 +81,9 @@
         "react-scripts": "^5.0.1",
         "storybook-dark-mode": "^1.1.0",
         "ts-node": "^10.9.2",
-        "typescript": "^5.3.3",
+        "typescript": "^4.8.2",
         "vitest": "^1.1.0",
         "webpack": "5.89.0"
-    },
-    "resolutions": {
-        "@storybook/react-docgen-typescript-plugin": "1.0.6--canary.9.cd77847.0"
     },
     "publishConfig": {
         "access": "public"
