@@ -49,7 +49,7 @@
     "keywords": [],
     "homepage": "https://github.com/Making-Sense-Info/ANTLR-Editor",
     "devDependencies": {
-        "@making-sense/vtl-2-0-antlr-tools-ts": "^0.2.6",
+        "@making-sense/vtl-2-0-antlr-tools-ts": "^0.3.0",
         "@monaco-editor/react": "^4.6.0",
         "@storybook/addon-actions": "^6.5.9",
         "@storybook/addon-essentials": "^6.5.9",
@@ -62,10 +62,10 @@
         "@storybook/react": "^6.5.9",
         "@storybook/theming": "^6.5.9",
         "@types/debug": "^4.1.12",
-        "@types/node": "^20.10.5",
-        "@types/react": "^18.2.45",
-        "@typescript-eslint/eslint-plugin": "^6.16.0",
-        "@typescript-eslint/parser": "^6.16.0",
+        "@types/node": "^20.10.7",
+        "@types/react": "^18.2.47",
+        "@typescript-eslint/eslint-plugin": "^6.18.0",
+        "@typescript-eslint/parser": "^6.18.0",
         "antlr4ts": "^0.5.0-alpha.4",
         "babel-plugin-named-exports-order": "0.0.2",
         "eslint": "^8.56.0",
@@ -82,7 +82,7 @@
         "storybook-dark-mode": "^1.1.0",
         "ts-node": "^10.9.2",
         "typescript": "^4.8.2",
-        "vitest": "^1.1.0",
+        "vitest": "^1.1.3",
         "webpack": "5.89.0"
     },
     "publishConfig": {
