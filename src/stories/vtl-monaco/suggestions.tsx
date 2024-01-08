@@ -184,6 +184,15 @@ export const getSuggestionsFromRange = (range: IRange) => {
             }
         },
         {
+            label: "random",
+            kind: FUNCTION,
+            insertText: "random",
+            range: range,
+            documentation: {
+                value: "The operator returns a random decimal number >= 0 and <1.  \n\n **Syntax** \n\n    random()"
+            }
+        },
+        {
             label: "in",
             kind: KEYWORD,
             insertText: "in",
