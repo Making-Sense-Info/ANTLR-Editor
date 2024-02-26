@@ -12,8 +12,8 @@ jobs:
         runs-on: ubuntu-latest
         if: ${{ !github.event.created && github.repository != 'garronej/ts-ci' }}
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
             - uses: bahmutov/npm-install@v1
             - name: If this step fails run 'yarn lint' and 'yarn format' then commit again.
               run: |
@@ -28,8 +28,8 @@ jobs:
                 os: [windows-latest, ubuntu-latest]
         name: Test with Node v${{ matrix.node }} on ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node }}
             - uses: bahmutov/npm-install@v1
@@ -42,21 +42,21 @@ jobs:
         # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
               with:
                   ref: ${{ github.ref }}
             - name: Upload sample files
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: samples
                   path: samples/
-            - uses: actions/setup-node@v3
+            - uses: actions/setup-node@v4
             - name: Build Storybook
               run: |
                   yarn
                   yarn build-storybook
             - name: Upload Storybook artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: storybook-static
                   path: storybook-static/
@@ -70,16 +70,16 @@ jobs:
             contents: write
         steps:
             - name: Download samples artifact
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
                   name: samples
                   path: samples
             - name: Download Storybook artifact
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
                   name: storybook-static
             - name: Deploy
-              uses: peaceiris/actions-gh-pages@v3
+              uses: peaceiris/actions-gh-pages@v4
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: .
@@ -112,10 +112,10 @@ jobs:
         runs-on: ubuntu-latest
         needs: check_if_version_upgraded
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
               with:
                   ref: ${{ github.ref }}
-            - uses: actions/setup-node@v3
+            - uses: actions/setup-node@v4
               with:
                   registry-url: https://registry.npmjs.org/
             - uses: bahmutov/npm-install@v1
