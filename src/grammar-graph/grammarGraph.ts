@@ -1,4 +1,4 @@
-import { Lexer, Parser } from "antlr4ts";
+import { Lexer, Parser } from "antlr4ng";
 import { languages } from "monaco-editor";
 import { VocabularyPack } from "../utils/vocabularyPack";
 import { GrammarStatement } from "./grammarStatement";

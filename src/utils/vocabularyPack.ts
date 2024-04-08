@@ -1,11 +1,11 @@
-import { Lexer, Parser } from "antlr4ts";
+import { Lexer, Parser } from "antlr4ng";
 
 export const keywordRgx: any = /[a-zA-Z][\w]*/;
 
 export class VocabularyPack<L extends Lexer, P extends Parser> {
     private readonly ruleNames: Array<string>;
     private readonly symbolicNames: Array<string | undefined>;
-    private readonly literalNames: Array<string | undefined>;
+    private readonly literalNames: Array<string | null>;
     private readonly operatorNames: Array<string | undefined>;
     private readonly keywordNames: Array<string | undefined>;
 
@@ -13,7 +13,7 @@ export class VocabularyPack<L extends Lexer, P extends Parser> {
         this.ruleNames = Array.from(parser.ruleNames);
         const count = lexer.vocabulary.maxTokenType;
         this.symbolicNames = new Array<string | undefined>(count);
-        this.literalNames = new Array<string | undefined>(count);
+        this.literalNames = new Array<string | null>(count);
         this.operatorNames = new Array<string | undefined>(count);
         this.keywordNames = new Array<string | undefined>(count);
 

@@ -1,4 +1,4 @@
-import { Lexer, Parser } from "antlr4ts";
+import { Lexer, Parser } from "antlr4ng";
 import { Log } from "../utils/log";
 import { VocabularyPack } from "../utils/vocabularyPack";
 import { RuleToken } from "./ruleToken";

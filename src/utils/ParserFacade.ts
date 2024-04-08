@@ -1,4 +1,4 @@
-import { ANTLRErrorListener, CharStreams, CommonTokenStream } from "antlr4ts";
+import { ANTLRErrorListener, CharStream, CommonTokenStream } from "antlr4ng";
 import { Log } from "./log";
 
 // @ts-ignore VALID
@@ -44,7 +44,7 @@ class CollectorErrorListener implements ANTLRErrorListener {
 }
 
 export const createLexer = (Lexer: any) => (input: string | undefined) => {
-    const chars = CharStreams.fromString(input || "");
+    const chars = CharStream.fromString(input || "");
     const lexer = new Lexer(chars);
     return lexer;
 };

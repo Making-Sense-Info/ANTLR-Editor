@@ -1,4 +1,4 @@
-import { Lexer } from "antlr4ts";
+import { Lexer } from "antlr4ng";
 import { keywordRgx } from "./vocabularyPack";
 
 export class TokensProvider {
@@ -28,8 +28,7 @@ export class TokensProvider {
     }
 
     private addTokens(lexer: Lexer) {
-        // @ts-ignore
-        const vocabulary = lexer.VOCABULARY;
+        const { vocabulary } = lexer;
         const ruleNames = lexer.ruleNames;
         ruleNames.forEach((_: any, index: number) => {
             let tokenName = vocabulary.getLiteralName(++index);
