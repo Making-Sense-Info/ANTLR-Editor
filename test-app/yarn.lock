@@ -1612,17 +1612,10 @@
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
 "@making-sense/antlr-editor@file:../dist":
-  version "0.3.2"
+  version "1.0.0"
   dependencies:
     antlr4ng "^3.0.4"
     path-browserify "^1.0.1"
-
-"@making-sense/vtl-2-0-antlr-tools-ts@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-0-antlr-tools-ts/-/vtl-2-0-antlr-tools-ts-1.0.0.tgz#80c2aebbbd2984ed3cd40c84da2b2b3f6ed2dea0"
-  integrity sha512-q15TT8jypxoJO2QEGlHQeVZPcdD3XNlVVBphrSInGuJBekxNoXYrSbYZMnVsfDP8RBr+/lZTQ6Dh0mgTQ4pR2w==
-  dependencies:
-    antlr4ng "^3.0.4"
 
 "@monaco-editor/loader@^1.4.0":
   version "1.4.0"
