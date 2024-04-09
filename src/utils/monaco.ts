@@ -1,4 +1,4 @@
-import path from "path";
+import path from "path-browserify";
 
 function ensureFirstBackSlash(str: string) {
     return str.length > 0 && str.charAt(0) !== "/" ? "/" + str : str;

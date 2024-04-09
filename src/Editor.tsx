@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import path from "path";
+import path from "path-browserify";
 import MonacoEditor from "@monaco-editor/react";
 import { loader } from "@monaco-editor/react";
 import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
