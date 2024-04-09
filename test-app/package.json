@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "dependencies": {
         "@making-sense/antlr-editor": "file:../dist",
+        "@making-sense/vtl-2-0-antlr-tools-ts": "^1.0.0",
         "@monaco-editor/react": "^4.6.0",
         "@testing-library/jest-dom": "^6.4.2",
         "@testing-library/react": "^14.3.0",
