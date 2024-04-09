@@ -22,10 +22,6 @@
     },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "exports": {
-        ".": "./dist/index.js",
-        "./*": "./dist/*.js"
-    },
     "lint-staged": {
         "*.{ts,tsx}": [
             "eslint --fix"
@@ -43,10 +39,15 @@
     "license": "MIT",
     "files": [
         "src/",
+        "!src/test/",
         "dist/",
+        "!dist/test/",
         "!dist/tsconfig.tsbuildinfo"
     ],
-    "keywords": [],
+    "keywords": [
+        "ANTLR",
+        "Monaco"
+    ],
     "homepage": "https://github.com/Making-Sense-Info/ANTLR-Editor",
     "devDependencies": {
         "@making-sense/vtl-2-0-antlr-tools-ts": "^1.0.0",
@@ -63,6 +64,7 @@
         "@storybook/theming": "^6.5.9",
         "@types/debug": "^4.1.12",
         "@types/node": "^20.12.5",
+        "@types/path-browserify": "^1.0.2",
         "@types/react": "^18.2.74",
         "@typescript-eslint/eslint-plugin": "^7.6.0",
         "@typescript-eslint/parser": "^7.6.0",
@@ -88,7 +90,7 @@
         "access": "public"
     },
     "dependencies": {
-        "antlr4ng": "^3.0.4"
+        "antlr4ng": "^3.0.4",
         "path-browserify": "^1.0.1"
     }
 }
