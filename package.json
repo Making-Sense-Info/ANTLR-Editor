@@ -50,9 +50,7 @@
     ],
     "homepage": "https://github.com/Making-Sense-Info/ANTLR-Editor",
     "devDependencies": {
-        "@making-sense/antlr4ng": "^3.0.4",
         "@making-sense/vtl-2-0-antlr-tools-ts": "^2.0.0",
-        "@monaco-editor/react": "^4.6.0",
         "@storybook/addon-actions": "^6.5.9",
         "@storybook/addon-essentials": "^6.5.9",
         "@storybook/addon-links": "^6.5.9",
@@ -75,7 +73,6 @@
         "eslint-plugin-storybook": "^0.6.15",
         "husky": "^9.0.11",
         "lint-staged": "^15.2.2",
-        "monaco-editor": "^0.47.0",
         "path-browserify": "^1.0.1",
         "prettier": "^3.2.5",
         "prop-types": "15.8.1",
@@ -87,6 +84,11 @@
         "typescript": "^4.8.2",
         "vitest": "^1.4.0",
         "webpack": "5.91.0"
+    },
+    "dependencies": {
+        "@making-sense/antlr4ng": "^3.0.4",
+        "@monaco-editor/react": "^4.6.0",
+        "monaco-editor": "^0.47.0"
     },
     "publishConfig": {
         "access": "public"
