@@ -1,4 +1,4 @@
-import { ANTLRErrorListener, CharStream, CommonTokenStream } from "antlr4ng";
+import { ANTLRErrorListener, CharStream, CommonTokenStream } from "@making-sense/antlr4ng";
 import { Log } from "./log";
 
 // @ts-ignore VALID

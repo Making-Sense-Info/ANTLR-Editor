@@ -1611,10 +1611,8 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@making-sense/antlr-editor@^1.0.1":
+"@making-sense/antlr-editor@file:../dist":
   version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@making-sense/antlr-editor/-/antlr-editor-1.0.1.tgz#6c5e482ab31dc41dead9ee921dd74460f7b71eca"
-  integrity sha512-LRYQYSKr35oSoFOFj+5PWnYe9+iPbzWcQnSfFK7kJ5RDeW+m1RrlfCDEV0SHi13p1rIhJ4FU0b1VZE+GFmt6Ww==
   dependencies:
     antlr4ng "^3.0.4"
     path-browserify "^1.0.1"
@@ -1625,6 +1623,11 @@
   integrity sha512-q15TT8jypxoJO2QEGlHQeVZPcdD3XNlVVBphrSInGuJBekxNoXYrSbYZMnVsfDP8RBr+/lZTQ6Dh0mgTQ4pR2w==
   dependencies:
     antlr4ng "^3.0.4"
+
+"@making-sense/vtl-2-0-monaco-tools-ts@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-0-monaco-tools-ts/-/vtl-2-0-monaco-tools-ts-0.1.0.tgz#1c5e9740b0af5837a236924eca737a7e447cd238"
+  integrity sha512-q+k3A+TaHRXDR0bxh0wdb7xuTc8dG1CBn6ljzGcJwE9t3GppXJB69uoMGZyNRHz3NMaxsJTP61Gt3mjBFKHswQ==
 
 "@monaco-editor/loader@^1.4.0":
   version "1.4.0"

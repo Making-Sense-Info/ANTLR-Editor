@@ -1,4 +1,4 @@
-import { Lexer, Parser } from "antlr4ng";
+import { Lexer, Parser } from "@making-sense/antlr4ng";
 
 export const keywordRgx: any = /[a-zA-Z][\w]*/;
 

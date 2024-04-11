@@ -1,4 +1,4 @@
-import { Lexer } from "antlr4ng";
+import { Lexer } from "@making-sense/antlr4ng";
 import { keywordRgx } from "./vocabularyPack";
 
 export class TokensProvider {

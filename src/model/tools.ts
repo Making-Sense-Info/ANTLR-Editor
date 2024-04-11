@@ -1,5 +1,5 @@
-import { Lexer } from "antlr4ng";
-import { Parser } from "antlr4ng";
+import { Lexer } from "@making-sense/antlr4ng";
+import { Parser } from "@making-sense/antlr4ng";
 import { IRange, languages as Languages } from "monaco-editor";
 
 export interface Tools {
