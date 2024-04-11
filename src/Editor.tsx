@@ -1,10 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
+import * as monaco from "monaco-editor";
+import { loader } from "@monaco-editor/react";
 import { validate } from "./utils/ParserFacade";
 import { getEditorWillMount } from "./utils/providers";
 import { Tools, Error, Variables } from "./model";
 import { buildVariables, buildUniqueVariables } from "./utils/variables";
+
+loader.config({
+    monaco
+});
 
 type EditorProps = {
     script?: string;
