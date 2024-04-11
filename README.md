@@ -11,71 +11,19 @@ ANTLR Typescript editor.
 ### Install
 
 ```bash
-yarn add @making-sense/antlr-editor antlr4ts monaco-editor @monaco-editor/react
+yarn add @making-sense/antlr-editor
 ```
 
-### Create React app
-
-As far as `antlr4ts` require some node modules which are no longer provided by `Webpack@5`, you have to complete the `webpack` configuration thanks to `react-app-rewired` (or `eject` your CRA application, what we will not recommend here), following these steps:
-
--   Install `react-app-rewired`, `assert`, `path` and `util` as `devDependency`
+### Example: VTLEditor
 
 ```bash
-yarn add -D react-app-rewired assert path util
-```
-
--   Override the create-react-app webpack config file
-
-At the root of your project, create the `config-overrides.js` file and add the following code to it:
-
-```javascript
-/*
-We use this file to in order to be able to use webpack plugin without ejecting from CRA.
-This file is picked up by react-app-rewired that we use in place of react-scripts
-*/
-
-module.exports = function override(config) {
-    if (!config.resolve.fallback) {
-        config.resolve.fallback = {};
-    }
-
-    config.resolve.fallback["assert"] = require.resolve("assert");
-    config.resolve.fallback["path"] = require.resolve("path");
-    config.resolve.fallback["util"] = require.resolve("util");
-
-    if (!config.plugins) {
-        config.plugins = [];
-    }
-    return config;
-};
-```
-
--   Switch the existing calls to `react-scripts` in your project scripts for start, build and test
-
-```diff
-  /* package.json */
-
-  "scripts": {
--   "start": "react-scripts start",
-+   "start": "react-app-rewired start",
--   "build": "react-scripts build",
-+   "build": "react-app-rewired build",
--   "test": "react-scripts test",
-+   "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
-}
-```
-
-### VTLEditor
-
-```bash
-yarn add @making-sense/vtl-2-0-antlr-tools-ts
+yarn add @making-sense/vtl-2-0-antlr-tools-ts @making-sense/vtl-2-0-monaco-tools-ts
 ```
 
 ```typescript
 import { AntlrEditor as VTLEditor } from "@making-sense/antlr-editor";
-import { getSuggestionsFromRange, monarchDefinition } from "./vtl-monaco";
 import * as VTLTools from "@making-sense/vtl-2-0-antlr-tools-ts";
+import { getSuggestionsFromRange, monarchDefinition } from "@making-sense/vtl-2-0-monaco-tools-ts";
 
 const customTools = { ...VTLTools, getSuggestionsFromRange, monarchDefinition };
 
@@ -142,9 +90,7 @@ See details about \* props below
 
 Have a look to [VTL 2.0 Antlr Tools](https://github.com/Making-Sense-Info/VTL-2.0-ANTLR-Tools-TS) for example.
 
-For autosuggestion, provide `getSuggestionsFromRange` (example [here](https://github.com/Making-Sense-Info/ANTLR-Editor/blob/main/src/stories/vtl-monaco/suggestions.tsx)).
-
-For highlighting, provide `monarchDefinition` (example [here](https://github.com/Making-Sense-Info/ANTLR-Editor/blob/main/src/stories/vtl-monaco/monarch-definition.json))
+Have a look to [VTL 2.0 Monaco Tools](https://github.com/Making-Sense-Info/VTL-2.0-Monaco-Tools-TS) for autosuggestion & highlighting example.
 
 #### `customFetcher`
 
