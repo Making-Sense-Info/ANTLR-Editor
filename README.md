@@ -17,7 +17,7 @@ yarn add @making-sense/antlr-editor
 ### Example: VTLEditor
 
 ```bash
-yarn add @making-sense/vtl-2-0-antlr-tools-ts @making-sense/vtl-2-0-monaco-tools-ts
+yarn add @making-sense/antlr-editor @making-sense/vtl-2-0-antlr-tools-ts @making-sense/vtl-2-0-monaco-tools-ts
 ```
 
 ```typescript
@@ -74,11 +74,11 @@ yarn link-in-app test-app # ../YOUR-APP is supposed to exist
 
 See details about \* props below
 
-### Props
+### Props details
 
 #### `tools`
 
-`tools` has to be mainly antlr4 auto-generated Lexer & Parser.
+`tools` has to be Antlr4 auto-generated Lexer & Parser.
 
 | Name        |     Type      | Default value |
 | ----------- | :-----------: | :-----------: |
@@ -89,6 +89,8 @@ See details about \* props below
 | Parser      | Antlr4 Parser |       -       |
 
 Have a look to [VTL 2.0 Antlr Tools](https://github.com/Making-Sense-Info/VTL-2.0-ANTLR-Tools-TS) for example.
+
+### `getSuggestionsFromRange` & `monarchDefinition`
 
 Have a look to [VTL 2.0 Monaco Tools](https://github.com/Making-Sense-Info/VTL-2.0-Monaco-Tools-TS) for autosuggestion & highlighting example.
 
