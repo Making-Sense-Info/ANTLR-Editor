@@ -49,10 +49,11 @@ const Editor = ({
         monacoRef.current = mon;
         let parseContentTO: NodeJS.Timeout;
         let contentChangeTO: NodeJS.Timeout | undefined;
+        parseContent(t, script);
         editor.onDidChangeModelContent(() => {
             if (parseContentTO) clearTimeout(parseContentTO);
             parseContentTO = setTimeout(() => {
-                parseContent(t);
+                parseContent(t, script);
             }, 0);
             if (!contentChangeTO) {
                 if (setScript) {

@@ -13,6 +13,13 @@ export const Default = {
     }
 };
 
+export const WithInvalidScript = {
+    args: { initialRule: "start", "script": "ds := " },
+    argTypes: {
+        initialRule: { control: "select", options: ["start", "expr"] }
+    }
+};
+
 export const Styled = {
     args: {
         initialRule: "start",
