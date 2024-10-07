@@ -16,7 +16,7 @@ export const Default = {
 export const NewFeatures = {
     args: {
         initialRule: "start",
-        "script": `ds_out := ds_in [calc r := random("init", 20)]
+        "script": `ds_out := ds_in [calc r := random(150, 20)]
                 [calc c := case when r < 0.2 then "Low" when r > 0.8 then "High" else "Medium"];
 a := datediff(cast("2022Q1", time_period), cast("2023Q2", time_period));
 b := dateadd(cast("2022Q1", time_period), 5, "M");
