@@ -1,6 +1,6 @@
 import Editor from "../Editor";
-import * as tools from "@making-sense/vtl-2-0-antlr-tools-ts";
-import { getSuggestionsFromRange, monarchDefinition } from "./vtl-monaco";
+import * as tools from "@making-sense/vtl-2-1-antlr-tools-ts";
+import { getSuggestionsFromRange, monarchDefinition } from "@making-sense/vtl-2-1-monaco-tools-ts";
 
 const customTools = { ...tools, getSuggestionsFromRange, monarchDefinition };
 
