@@ -14,16 +14,16 @@ ANTLR Typescript editor.
 yarn add @making-sense/antlr-editor
 ```
 
-### Example: VTLEditor
+### Example: VTL 2.1
 
 ```bash
-yarn add @making-sense/antlr-editor @making-sense/vtl-2-0-antlr-tools-ts @making-sense/vtl-2-0-monaco-tools-ts
+yarn add @making-sense/antlr-editor @making-sense/vtl-2-1-antlr-tools-ts @making-sense/vtl-2-1-monaco-tools-ts
 ```
 
 ```typescript
 import { AntlrEditor as VTLEditor } from "@making-sense/antlr-editor";
-import * as VTLTools from "@making-sense/vtl-2-0-antlr-tools-ts";
-import { getSuggestionsFromRange, monarchDefinition } from "@making-sense/vtl-2-0-monaco-tools-ts";
+import * as VTLTools from "@making-sense/vtl-2-1-antlr-tools-ts";
+import { getSuggestionsFromRange, monarchDefinition } from "@making-sense/vtl-2-1-monaco-tools-ts";
 
 const customTools = { ...VTLTools, getSuggestionsFromRange, monarchDefinition };
 
