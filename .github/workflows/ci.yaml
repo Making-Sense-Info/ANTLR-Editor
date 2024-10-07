@@ -14,9 +14,11 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
-            - uses: bahmutov/npm-install@v1
+              with:
+                  node-version: 22
             - name: If this step fails run 'yarn lint' and 'yarn format' then commit again.
               run: |
+                  yarn
                   yarn lint:check
                   yarn format:check
     test:
@@ -33,8 +35,10 @@ jobs:
               with:
                   node-version: ${{ matrix.node }}
             - uses: bahmutov/npm-install@v1
-            - run: yarn build
-            - run: yarn test
+            - run: |
+                  yarn
+                  yarn test
+                  yarn build
 
     build_storybook:
         name: Build Storybook app
@@ -51,6 +55,8 @@ jobs:
                   name: samples
                   path: samples/
             - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
             - name: Build Storybook
               run: |
                   yarn
