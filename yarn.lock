@@ -1950,10 +1950,10 @@
   resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-0-monaco-tools-ts/-/vtl-2-0-monaco-tools-ts-0.1.0.tgz#1c5e9740b0af5837a236924eca737a7e447cd238"
   integrity sha512-q+k3A+TaHRXDR0bxh0wdb7xuTc8dG1CBn6ljzGcJwE9t3GppXJB69uoMGZyNRHz3NMaxsJTP61Gt3mjBFKHswQ==
 
-"@making-sense/vtl-2-1-antlr-tools-ts@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-1-antlr-tools-ts/-/vtl-2-1-antlr-tools-ts-1.0.0.tgz#da69408d7614885aff5c2af34f3f728d3aaff24e"
-  integrity sha512-Z9haYJJfswjkgz74mdCHLiqE6D04jymxB48cRS6D8/j3S5/4+DEERPlY9kizaIZBk48YH8/DwwYQsrB5+1n98w==
+"@making-sense/vtl-2-1-antlr-tools-ts@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@making-sense/vtl-2-1-antlr-tools-ts/-/vtl-2-1-antlr-tools-ts-1.0.1.tgz#e721e14d554d0c24accb39e2da846f231092d761"
+  integrity sha512-wa9nx8svCJC+NoU7gre6YRtO7V/nKiLdCZwrEa6c+Xb9gr77EPZCi1yGkcfytF6+KPatNJ0eboO4n5aZJdpNfA==
 
 "@making-sense/vtl-2-1-monaco-tools-ts@^1.0.0":
   version "1.0.0"

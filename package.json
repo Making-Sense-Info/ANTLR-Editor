@@ -52,7 +52,7 @@
     "devDependencies": {
         "@making-sense/vtl-2-0-antlr-tools-ts": "^2.0.1",
         "@making-sense/vtl-2-0-monaco-tools-ts": "^0.1.0",
-        "@making-sense/vtl-2-1-antlr-tools-ts": "^1.0.0",
+        "@making-sense/vtl-2-1-antlr-tools-ts": "^1.0.1",
         "@making-sense/vtl-2-1-monaco-tools-ts": "^1.0.0",
         "@storybook/addon-actions": "^6.5.9",
         "@storybook/addon-essentials": "^6.5.9",
