@@ -107,7 +107,13 @@ const Editor = ({
                         else if (k === "alt") keyMod |= monaco.KeyMod.Alt;
                         else {
                             const upper = k.length === 1 ? k.toUpperCase() : k;
-                            keyCode = monaco.KeyCode[`Key${upper}`] || monaco.KeyCode[upper];
+                            if (`Key${upper}` in monaco.KeyCode) {
+                                keyCode = monaco.KeyCode[`Key${upper}` as keyof typeof monaco.KeyCode];
+                            } else if (upper in monaco.KeyCode) {
+                                keyCode = monaco.KeyCode[upper as keyof typeof monaco.KeyCode];
+                            } else {
+                                keyCode = null;
+                            }
                         }
                     });
 
