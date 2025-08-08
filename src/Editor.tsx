@@ -94,7 +94,6 @@ const Editor = ({
 
         if (shortcuts) {
             Object.entries(shortcuts).forEach(([comboString, action]) => {
-                // Chaque combo peut avoir plusieurs variantes séparées par ","
                 comboString.split(",").forEach(combo => {
                     const keys = combo.trim().toLowerCase().split("+");
                     let keyCode = null;
