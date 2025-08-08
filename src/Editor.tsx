@@ -84,12 +84,10 @@ const Editor = ({
         editor.onDidChangeCursorSelection(e => {
             const selection = e.selection;
             const length = editor?.getModel()?.getValueInRange(selection).length;
-            if (length) {
-                setStatus(prev => ({
-                    ...prev,
-                    selectionLength: length
-                }));
-            }
+            setStatus(prev => ({
+                ...prev,
+                selectionLength: length || 0
+            }));
         });
 
         if (shortcuts) {
