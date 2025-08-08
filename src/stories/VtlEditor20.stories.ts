@@ -53,6 +53,17 @@ const variables = {
     age: { type: VariableType.INTEGER, role: VariableRole.MEASURE }
 };
 
+const shortcuts = {
+    "ctrl+s, meta+s": () => {
+        console.log("Save triggered!");
+        // ta logique sauvegarde ici
+    },
+    "ctrl+enter, meta+enter": () => {
+        console.log("Run triggered!");
+        // ta logique d'exécution ici
+    }
+};
+
 export const Enriched = {
     args: {
         initialRule: "start",
@@ -60,7 +71,8 @@ export const Enriched = {
         variablesInputURLs: [
             "https://raw.githubusercontent.com/Making-Sense-Info/ANTLR-Editor/gh-pages/samples/variablesInputFile1.json",
             "https://raw.githubusercontent.com/Making-Sense-Info/ANTLR-Editor/gh-pages/samples/variablesInputFile2.json"
-        ]
+        ],
+        shortcuts
     },
     argTypes: {
         initialRule: { control: "select", options: ["start", "expr"] },

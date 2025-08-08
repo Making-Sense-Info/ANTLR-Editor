@@ -24,6 +24,7 @@ type EditorProps = {
     width?: string;
     theme?: string;
     options?: Monaco.editor.IStandaloneEditorConstructionOptions;
+    shortcuts: Record<string, () => void>;
 };
 
 const Editor = ({
@@ -37,12 +38,19 @@ const Editor = ({
     height = "50vh",
     width = "100%",
     theme = "vs-dark",
-    options
+    options,
+    shortcuts
 }: EditorProps) => {
     const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
     const monacoRef = useRef<typeof Monaco | null>(null);
     const [ready, setReady] = useState<boolean>(false);
     const [vars, setVars] = useState(buildVariables(variables));
+
+    const [status, setStatus] = useState({
+        line: 1,
+        column: 1,
+        selectionLength: 0
+    });
 
     const onMount = (editor: Monaco.editor.IStandaloneCodeEditor, mon: typeof Monaco, t: Tools) => {
         editorRef.current = editor;
@@ -62,6 +70,69 @@ const Editor = ({
                         contentChangeTO = undefined;
                     }, 200);
                 }
+            }
+        });
+
+        editor.onDidChangeCursorPosition(e => {
+            setStatus(prev => ({
+                ...prev,
+                line: e.position.lineNumber,
+                column: e.position.column
+            }));
+        });
+
+        editor.onDidChangeCursorSelection(e => {
+            const selection = e.selection;
+            const length = editor?.getModel()?.getValueInRange(selection).length;
+            if (length) {
+                setStatus(prev => ({
+                    ...prev,
+                    selectionLength: length
+                }));
+            }
+        });
+
+        if (shortcuts) {
+            Object.entries(shortcuts).forEach(([comboString, action]) => {
+                // Chaque combo peut avoir plusieurs variantes séparées par ","
+                comboString.split(",").forEach(combo => {
+                    const keys = combo.trim().toLowerCase().split("+");
+                    let keyCode = null;
+                    let keyMod = 0;
+
+                    keys.forEach(k => {
+                        if (k === "ctrl") keyMod |= monaco.KeyMod.CtrlCmd;
+                        else if (k === "meta") keyMod |= monaco.KeyMod.CtrlCmd;
+                        else if (k === "shift") keyMod |= monaco.KeyMod.Shift;
+                        else if (k === "alt") keyMod |= monaco.KeyMod.Alt;
+                        else {
+                            const upper = k.length === 1 ? k.toUpperCase() : k;
+                            keyCode = monaco.KeyCode[`Key${upper}`] || monaco.KeyCode[upper];
+                        }
+                    });
+
+                    if (keyCode !== null) {
+                        editor.addCommand(keyMod | keyCode, e => {
+                            e?.preventDefault?.();
+                            action();
+                        });
+                    }
+                });
+            });
+        }
+
+        editor.onKeyDown(e => {
+            const isMac = /Mac/.test(navigator.userAgent);
+            const metaPressed = e.metaKey;
+            const ctrlPressed = e.ctrlKey;
+
+            if (
+                (isMac && metaPressed && e.code === "Enter") ||
+                (!isMac && ctrlPressed && e.code === "Enter")
+            ) {
+                e.preventDefault();
+                e.stopPropagation();
+                shortcuts["ctrl+enter, meta+enter"]?.();
             }
         });
     };
@@ -120,28 +191,61 @@ const Editor = ({
         parseContent(tools);
     }, [tools.initialRule]);
 
+    const isDark = theme.includes("dark");
+
     if (!ready) return null;
 
+    const bannerHeight = 22;
+
     return (
-        <MonacoEditor
-            value={script}
-            height={height}
-            width={width}
-            onMount={(e, m) => {
-                parseContent(tools, script);
-                onMount(e, m, tools);
-                getEditorWillMount(tools)({
-                    variables: vars,
-                    editor: e
-                })(m);
-            }}
-            onChange={() => {
-                parseContent(tools);
-            }}
-            theme={theme}
-            language={tools.id}
-            options={options}
-        />
+        <div style={{ position: "relative", height, width }}>
+            <div style={{ height: `calc(100% - ${bannerHeight}px)` }}>
+                <MonacoEditor
+                    value={script}
+                    height="100%"
+                    width="100%"
+                    onMount={(e, m) => {
+                        parseContent(tools, script);
+                        onMount(e, m, tools);
+                        getEditorWillMount(tools)({
+                            variables: vars,
+                            editor: e
+                        })(m);
+                    }}
+                    onChange={() => {
+                        parseContent(tools);
+                    }}
+                    theme={theme}
+                    language={tools.id}
+                    options={options}
+                />
+            </div>
+            <div
+                style={{
+                    position: "absolute",
+                    height: bannerHeight,
+                    width: "100%",
+                    bottom: 0,
+                    left: 0,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "12px",
+                    padding: "4px 8px",
+                    background: isDark ? "#1e1e1e" : "#f3f3f3",
+                    color: isDark ? "#ccc" : "#333",
+                    fontSize: "12px",
+                    fontFamily: "monospace",
+                    borderTop: `1px solid ${isDark ? "#333" : "#ccc"}`,
+                    zIndex: 10,
+                    boxSizing: "border-box"
+                }}
+            >
+                <span>
+                    Line {status.line} - Column {status.column}
+                </span>
+                {status.selectionLength > 0 && <span>({status.selectionLength} selected)</span>}
+            </div>
+        </div>
     );
 };
 
