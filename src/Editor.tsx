@@ -7,10 +7,13 @@ import { validate } from "./utils/ParserFacade";
 import { getEditorWillMount } from "./utils/providers";
 import { Tools, Error, Variables } from "./model";
 import { buildVariables, buildUniqueVariables } from "./utils/variables";
+import EditorFooter from "./EditorFooter";
 
 loader.config({
     monaco
 });
+
+export type CursorType = { line: number; column: number; selectionLength: number };
 
 type EditorProps = {
     script?: string;
@@ -25,6 +28,7 @@ type EditorProps = {
     theme?: string;
     options?: Monaco.editor.IStandaloneEditorConstructionOptions;
     shortcuts: Record<string, () => void>;
+    FooterComponent?: React.FC<{ cursor: CursorType }>;
 };
 
 const Editor = ({
@@ -39,14 +43,15 @@ const Editor = ({
     width = "100%",
     theme = "vs-dark",
     options,
-    shortcuts
+    shortcuts,
+    FooterComponent
 }: EditorProps) => {
     const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
     const monacoRef = useRef<typeof Monaco | null>(null);
     const [ready, setReady] = useState<boolean>(false);
     const [vars, setVars] = useState(buildVariables(variables));
 
-    const [status, setStatus] = useState({
+    const [cursor, setCursor] = useState({
         line: 1,
         column: 1,
         selectionLength: 0
@@ -74,7 +79,7 @@ const Editor = ({
         });
 
         editor.onDidChangeCursorPosition(e => {
-            setStatus(prev => ({
+            setCursor(prev => ({
                 ...prev,
                 line: e.position.lineNumber,
                 column: e.position.column
@@ -84,7 +89,7 @@ const Editor = ({
         editor.onDidChangeCursorSelection(e => {
             const selection = e.selection;
             const length = editor?.getModel()?.getValueInRange(selection).length;
-            setStatus(prev => ({
+            setCursor(prev => ({
                 ...prev,
                 selectionLength: length || 0
             }));
@@ -230,23 +235,16 @@ const Editor = ({
                     width: "100%",
                     bottom: 0,
                     left: 0,
-                    display: "flex",
-                    justifyContent: "flex-end",
                     gap: "12px",
                     padding: "4px 8px",
                     background: isDark ? "#1e1e1e" : "#f3f3f3",
                     color: isDark ? "#ccc" : "#333",
-                    fontSize: "12px",
-                    fontFamily: "monospace",
                     borderTop: `1px solid ${isDark ? "#333" : "#ccc"}`,
                     zIndex: 10,
                     boxSizing: "border-box"
                 }}
             >
-                <span>
-                    Line {status.line} - Column {status.column}
-                </span>
-                {status.selectionLength > 0 && <span>({status.selectionLength} selected)</span>}
+                <EditorFooter cursor={cursor} FooterComponent={FooterComponent} />
             </div>
         </div>
     );
