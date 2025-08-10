@@ -1,1 +1,1 @@
-export { default as AntlrEditor } from "./Editor";
+export { default as AntlrEditor, CursorType } from "./Editor";
