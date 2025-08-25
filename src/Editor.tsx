@@ -29,6 +29,7 @@ type EditorProps = {
     options?: Monaco.editor.IStandaloneEditorConstructionOptions;
     shortcuts: Record<string, () => void>;
     FooterComponent?: React.FC<{ cursor: CursorType }>;
+    displayFooter: boolean;
 };
 
 const Editor = ({
@@ -44,7 +45,8 @@ const Editor = ({
     theme = "vs-dark",
     options,
     shortcuts,
-    FooterComponent
+    FooterComponent,
+    displayFooter = true
 }: EditorProps) => {
     const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
     const monacoRef = useRef<typeof Monaco | null>(null);
@@ -203,7 +205,7 @@ const Editor = ({
 
     if (!ready) return null;
 
-    const bannerHeight = 22;
+    const bannerHeight = displayFooter ? 22 : 0;
 
     return (
         <div style={{ position: "relative", height, width }}>
@@ -228,24 +230,26 @@ const Editor = ({
                     options={options}
                 />
             </div>
-            <div
-                style={{
-                    position: "absolute",
-                    height: bannerHeight,
-                    width: "100%",
-                    bottom: 0,
-                    left: 0,
-                    gap: "12px",
-                    padding: "4px 8px",
-                    background: isDark ? "#1e1e1e" : "#f3f3f3",
-                    color: isDark ? "#ccc" : "#333",
-                    borderTop: `1px solid ${isDark ? "#333" : "#ccc"}`,
-                    zIndex: 10,
-                    boxSizing: "border-box"
-                }}
-            >
-                <EditorFooter cursor={cursor} FooterComponent={FooterComponent} />
-            </div>
+            {displayFooter && (
+                <div
+                    style={{
+                        position: "absolute",
+                        height: bannerHeight,
+                        width: "100%",
+                        bottom: 0,
+                        left: 0,
+                        gap: "12px",
+                        padding: "4px 8px",
+                        background: isDark ? "#1e1e1e" : "#f3f3f3",
+                        color: isDark ? "#ccc" : "#333",
+                        borderTop: `1px solid ${isDark ? "#333" : "#ccc"}`,
+                        zIndex: 10,
+                        boxSizing: "border-box"
+                    }}
+                >
+                    <EditorFooter cursor={cursor} FooterComponent={FooterComponent} />
+                </div>
+            )}
         </div>
     );
 };

@@ -95,6 +95,7 @@ export const Enriched = {
     argTypes: {
         initialRule: { control: "select", options: ["start", "expr"] },
         variables: { control: "object" },
-        variablesInputURLs: { control: "object" }
+        variablesInputURLs: { control: "object" },
+        displayFooter: { control: "boolean" }
     }
 };
