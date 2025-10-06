@@ -37,8 +37,15 @@ jobs:
             - uses: bahmutov/npm-install@v1
             - run: |
                   yarn
-                  yarn test:run
+                  yarn test:coverage
                   yarn build
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v4
+              with:
+                  file: ./coverage/coverage-final.json
+                  flags: unittests
+                  name: codecov-umbrella
+                  fail_ci_if_error: false
 
     build_storybook:
         name: Build Storybook app
