@@ -1,4 +1,5 @@
 // Global Monaco Editor mock
+/* global global */
 global.monaco = {
     editor: {
         setModelMarkers: () => {},
@@ -21,6 +22,7 @@ global.monaco = {
 };
 
 // Mock Monaco Editor module
+/* global module */
 module.exports = {
     editor: global.monaco.editor,
     KeyMod: global.monaco.KeyMod,

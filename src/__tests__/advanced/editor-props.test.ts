@@ -165,7 +165,7 @@ describe("Editor Props", () => {
         });
 
         it("should handle customFetcher", () => {
-            const customFetcher = (url: string) => Promise.resolve({ json: () => Promise.resolve([]) });
+            const customFetcher = () => Promise.resolve({ json: () => Promise.resolve([]) });
 
             const props = {
                 customFetcher,
@@ -203,7 +203,7 @@ describe("Editor Props", () => {
         });
 
         it("should handle FooterComponent", () => {
-            const FooterComponent = ({ cursor }: { cursor: any }) => null;
+            const FooterComponent = () => null;
 
             const props = {
                 FooterComponent,

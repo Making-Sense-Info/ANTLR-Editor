@@ -41,7 +41,7 @@ describe("Performance Tests", () => {
         });
 
         it("should simulate memory cleanup", () => {
-            let resources = {
+            const resources = {
                 editor: { disposed: false },
                 providers: { disposed: false },
                 listeners: { disposed: false }
@@ -198,9 +198,9 @@ describe("Performance Tests", () => {
             performance.mark(startMark);
 
             // Simulate some work
-            let sum = 0;
             for (let i = 0; i < 100; i++) {
-                sum += i;
+                // Simulate work without storing result
+                void (i * 2);
             }
 
             performance.mark(endMark);

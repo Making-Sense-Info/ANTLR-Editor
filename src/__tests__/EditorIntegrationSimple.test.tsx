@@ -35,7 +35,7 @@ const mockMonaco = {
 
 // Mock @monaco-editor/react
 vi.mock("@monaco-editor/react", () => ({
-    default: ({ script, setScript, shortcuts, onMount, onChange, ...props }: any) => {
+    default: ({ script, setScript, onMount, onChange }: any) => {
         const [value, setValue] = mockReact.useState(script || "");
 
         mockReact.useEffect(() => {
@@ -81,14 +81,7 @@ vi.mock("@monaco-editor/react", () => ({
     }
 }));
 
-// Mock tools
-const mockTools = {
-    id: "vtl",
-    initialRule: "start",
-    grammar: "grammar VTL;",
-    Lexer: vi.fn(),
-    Parser: vi.fn()
-};
+// Mock tools - removed unused variable
 
 // Mock providers
 vi.mock("../utils/providers", () => ({
@@ -224,7 +217,6 @@ describe("Editor Integration Simple Test", () => {
         const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
         // Simulate error
-        const error = new Error("InstantiationService has been disposed");
         console.warn("Monaco InstantiationService disposal detected, cleaning up...");
 
         expect(consoleSpy).toHaveBeenCalledWith(

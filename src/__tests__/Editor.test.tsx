@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import Editor from "../Editor";
 
@@ -324,7 +324,7 @@ describe("Editor", () => {
     });
 
     it("handles error recovery and remounting", async () => {
-        const { rerender } = render(<Editor {...defaultProps} />);
+        render(<Editor {...defaultProps} />);
 
         // In test mode, we just verify the component renders
         expect(screen.getByTestId("monaco-editor-mock")).toBeDefined();

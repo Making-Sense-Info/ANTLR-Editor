@@ -159,7 +159,6 @@ describe("Error Scenarios", () => {
 
             // Simulate adding event listeners
             const addEventListener = vi.fn();
-            const removeEventListener = vi.fn();
 
             addEventListener("error", errorHandler, true);
             addEventListener("unhandledrejection", rejectionHandler);

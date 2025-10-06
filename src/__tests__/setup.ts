@@ -123,7 +123,7 @@ vi.mock("monaco-editor/esm/vs/editor/editor.api", () => ({
 
 // Mock @monaco-editor/react
 vi.mock("@monaco-editor/react", () => ({
-    default: vi.fn(({ onMount, ...props }) => {
+    default: vi.fn(({ onMount }) => {
         // Simulate component mounting
         if (onMount) {
             setTimeout(() => {

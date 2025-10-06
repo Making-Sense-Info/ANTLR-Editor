@@ -35,7 +35,7 @@ const mockMonaco = {
 
 // Mock @monaco-editor/react
 vi.mock("@monaco-editor/react", () => ({
-    default: ({ script, setScript, shortcuts, onMount, onChange, ...props }: any) => {
+    default: ({ script, setScript, onMount, onChange }: any) => {
         const [value, setValue] = mockReact.useState(script || "");
 
         mockReact.useEffect(() => {
