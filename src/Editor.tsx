@@ -4,7 +4,7 @@ import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
 import * as monaco from "monaco-editor";
 import { loader } from "@monaco-editor/react";
 import { validate } from "./utils/ParserFacade";
-import { getEditorWillMount } from "./utils/providers";
+import { getEditorWillMount, cleanupProviders } from "./utils/providers";
 import { Tools, Error, Variables } from "./model";
 import { buildVariables, buildUniqueVariables } from "./utils/variables";
 import EditorFooter from "./EditorFooter";
@@ -52,6 +52,8 @@ const Editor = ({
     const monacoRef = useRef<typeof Monaco | null>(null);
     const [ready, setReady] = useState<boolean>(false);
     const [vars, setVars] = useState(buildVariables(variables));
+    const [isEditorReady, setIsEditorReady] = useState(false);
+    const [editorKey, setEditorKey] = useState(0);
 
     const [cursor, setCursor] = useState({
         line: 1,
@@ -59,12 +61,76 @@ const Editor = ({
         selectionLength: 0
     });
 
+    // Cleanup function to properly dispose of Monaco resources
+    const cleanupMonaco = useCallback(() => {
+        if (editorRef.current) {
+            try {
+                // Dispose the editor instance
+                editorRef.current.dispose();
+            } catch (error) {
+                console.warn("Error disposing Monaco editor:", error);
+            }
+            editorRef.current = null;
+        }
+
+        // Clear Monaco reference
+        monacoRef.current = null;
+        setIsEditorReady(false);
+
+        // Cleanup providers
+        cleanupProviders();
+    }, []);
+
+    // Handle Monaco disposal errors gracefully
+    useEffect(() => {
+        const handleMonacoError = (event: ErrorEvent) => {
+            if (event.error?.message?.includes("InstantiationService has been disposed")) {
+                console.warn("Monaco InstantiationService disposal detected, cleaning up...");
+                cleanupMonaco();
+                // Force a remount with a new key
+                setEditorKey(prev => prev + 1);
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        };
+
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            if (event.reason?.message?.includes("InstantiationService has been disposed")) {
+                console.warn("Monaco InstantiationService disposal detected in promise, cleaning up...");
+                cleanupMonaco();
+                setEditorKey(prev => prev + 1);
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        };
+
+        window.addEventListener("error", handleMonacoError);
+        window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+        return () => {
+            window.removeEventListener("error", handleMonacoError);
+            window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+        };
+    }, [cleanupMonaco]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            cleanupMonaco();
+        };
+    }, [cleanupMonaco]);
+
     const onMount = (editor: Monaco.editor.IStandaloneCodeEditor, mon: typeof Monaco, t: Tools) => {
         editorRef.current = editor;
         monacoRef.current = mon;
+        setIsEditorReady(true);
+
         let parseContentTO: NodeJS.Timeout;
         let contentChangeTO: NodeJS.Timeout | undefined;
         parseContent(t, script);
+
         editor.onDidChangeModelContent(() => {
             if (parseContentTO) clearTimeout(parseContentTO);
             parseContentTO = setTimeout(() => {
@@ -150,6 +216,8 @@ const Editor = ({
     const parseContent = useCallback(
         (t: Tools, str?: string) => {
             const editor = editorRef.current;
+            if (!editor || !monacoRef.current) return;
+
             const monacoErrors: Monaco.editor.IMarkerData[] = validate(t)(editor?.getValue() || str).map(
                 error => {
                     return {
@@ -198,8 +266,10 @@ const Editor = ({
     }, [variablesInputURLs]);
 
     useEffect(() => {
-        parseContent(tools);
-    }, [tools.initialRule]);
+        if (isEditorReady) {
+            parseContent(tools);
+        }
+    }, [tools.initialRule, isEditorReady, parseContent, tools]);
 
     const isDark = theme.includes("dark");
 
@@ -211,6 +281,7 @@ const Editor = ({
         <div style={{ position: "relative", height, width }}>
             <div style={{ height: `calc(100% - ${bannerHeight}px)` }}>
                 <MonacoEditor
+                    key={editorKey} // Use key to force remount when needed
                     value={script}
                     height="100%"
                     width="100%"
@@ -223,7 +294,9 @@ const Editor = ({
                         })(m);
                     }}
                     onChange={() => {
-                        parseContent(tools);
+                        if (isEditorReady) {
+                            parseContent(tools);
+                        }
                     }}
                     theme={theme}
                     language={tools.id}

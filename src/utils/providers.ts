@@ -44,41 +44,102 @@ export const getBracketsConfiguration = (): languages.LanguageConfiguration => {
     };
 };
 
-let completionItemDispose: IDisposable | undefined = undefined;
+// Improved provider management with proper cleanup
+class ProviderManager {
+    private completionItemDispose: IDisposable | undefined = undefined;
+    private registeredLanguages = new Set<string>();
+    private registeredThemes = new Set<string>();
 
-export const getEditorWillMount =
-    (tools: Tools) =>
-    ({ variables, editor }: { variables: Variable[]; editor: Monaco.editor.IStandaloneCodeEditor }) => {
+    dispose() {
+        if (this.completionItemDispose) {
+            try {
+                this.completionItemDispose.dispose();
+            } catch (error) {
+                console.warn("Error disposing completion item provider:", error);
+            }
+            this.completionItemDispose = undefined;
+        }
+    }
+
+    getEditorWillMount = (tools: Tools) => {
         const { id } = tools;
-        return (monaco: typeof EditorApi) => {
-            monaco.languages.register({ id });
-            if (tools.monarchDefinition) {
-                const tokensProvider: TokensProvider = new TokensProvider(tools);
-                monaco.languages.setMonarchTokensProvider(id, tokensProvider.monarchLanguage());
-            }
-            monaco.editor.defineTheme(id, getTheme());
-            monaco.editor.defineTheme("vtl-default", getVtlTheme("vtl-default"));
-            monaco.editor.defineTheme("vtl-light", getVtlTheme("vtl-light"));
-            monaco.editor.defineTheme("vtl-dark", getVtlTheme("vtl-dark"));
-            monaco.editor.defineTheme("vtl-black", getVtlTheme("vtl-black"));
-            monaco.languages.setLanguageConfiguration(id, getBracketsConfiguration());
-            if (completionItemDispose) {
-                completionItemDispose.dispose();
-            }
-            completionItemDispose = monaco.languages.registerCompletionItemProvider(id, {
-                provideCompletionItems: getSuggestions(tools, {
-                    variables
-                })
-            });
+        return ({
+            variables,
+            editor
+        }: {
+            variables: Variable[];
+            editor: Monaco.editor.IStandaloneCodeEditor;
+        }) => {
+            return (monaco: typeof EditorApi) => {
+                try {
+                    // Register language only if not already registered
+                    if (!this.registeredLanguages.has(id)) {
+                        monaco.languages.register({ id });
+                        this.registeredLanguages.add(id);
+                    }
 
-            //@ts-ignore
-            const { widget } = editor.getContribution("editor.contrib.suggestController");
-            if (widget) {
-                const suggestWidget = widget.value;
-                suggestWidget._setDetailsVisible(true);
-            }
+                    if (tools.monarchDefinition) {
+                        const tokensProvider: TokensProvider = new TokensProvider(tools);
+                        monaco.languages.setMonarchTokensProvider(id, tokensProvider.monarchLanguage());
+                    }
+
+                    // Register themes only if not already registered
+                    const themes = [id, "vtl-default", "vtl-light", "vtl-dark", "vtl-black"];
+                    themes.forEach(themeName => {
+                        if (!this.registeredThemes.has(themeName)) {
+                            if (themeName === id) {
+                                monaco.editor.defineTheme(themeName, getTheme());
+                            } else {
+                                monaco.editor.defineTheme(themeName, getVtlTheme(themeName));
+                            }
+                            this.registeredThemes.add(themeName);
+                        }
+                    });
+
+                    monaco.languages.setLanguageConfiguration(id, getBracketsConfiguration());
+
+                    // Dispose previous completion provider
+                    if (this.completionItemDispose) {
+                        try {
+                            this.completionItemDispose.dispose();
+                        } catch (error) {
+                            console.warn("Error disposing previous completion provider:", error);
+                        }
+                    }
+
+                    // Register new completion provider
+                    this.completionItemDispose = monaco.languages.registerCompletionItemProvider(id, {
+                        provideCompletionItems: getSuggestions(tools, { variables })
+                    });
+
+                    // Configure suggest widget
+                    try {
+                        //@ts-ignore
+                        const { widget } = editor.getContribution("editor.contrib.suggestController");
+                        if (widget) {
+                            const suggestWidget = widget.value;
+                            suggestWidget._setDetailsVisible(true);
+                        }
+                    } catch (error) {
+                        console.warn("Error configuring suggest widget:", error);
+                    }
+                } catch (error) {
+                    console.error("Error in getEditorWillMount:", error);
+                }
+            };
         };
     };
+}
+
+// Global provider manager instance
+const providerManager = new ProviderManager();
+
+export const getEditorWillMount = providerManager.getEditorWillMount;
+
+// Cleanup function to be called when needed
+export const cleanupProviders = () => {
+    providerManager.dispose();
+};
 
 const buildGrammarGraph = (tools: Tools) => {
     const { Lexer, Parser, grammar } = tools;
