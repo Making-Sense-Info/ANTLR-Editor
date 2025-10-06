@@ -1,5 +1,8 @@
 import { defineConfig } from "vitest/config";
 import { resolve } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
     test: {
@@ -8,12 +11,30 @@ export default defineConfig({
         setupFiles: ["./src/__tests__/setup.ts"],
         env: {
             NODE_ENV: "test"
+        },
+        coverage: {
+            provider: "v8",
+            reporter: ["text", "json", "html"],
+            include: ["src/**/*.{ts,tsx}"],
+            exclude: [
+                "node_modules/",
+                "src/__tests__/",
+                "**/*.d.ts",
+                "**/*.config.*",
+                "**/stories/**",
+                "**/storybook-static/**",
+                "**/scripts/**",
+                "**/test-app/**",
+                "**/.storybook/**",
+                "**/dist/**",
+                "**/coverage/**",
+                "**/vitest.config.*",
+                "**/eslint.config.*",
+                "**/.eslintrc.*",
+                "**/storybook-static/**",
+                "**/test-app/**"
+            ]
         }
-        // coverage: {
-        //     provider: "v8",
-        //     reporter: ["text", "json", "html"],
-        //     exclude: ["node_modules/", "src/__tests__/", "**/*.d.ts", "**/*.config.*", "**/stories/**"]
-        // }
     },
     resolve: {
         alias: {
