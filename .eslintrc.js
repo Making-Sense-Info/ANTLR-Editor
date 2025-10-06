@@ -9,6 +9,11 @@ module.exports = {
         "plugin:@typescript-eslint/recommended",
         "prettier",
     ],
+    "ignorePatterns": [
+        "storybook-static/",
+        "dist/",
+        "node_modules/"
+    ],
     "rules": {
         "no-extra-boolean-cast": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",

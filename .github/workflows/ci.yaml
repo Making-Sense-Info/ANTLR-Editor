@@ -37,7 +37,7 @@ jobs:
             - uses: bahmutov/npm-install@v1
             - run: |
                   yarn
-                  yarn test
+                  yarn test:run
                   yarn build
 
     build_storybook:

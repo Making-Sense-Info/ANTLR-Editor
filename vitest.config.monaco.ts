@@ -6,14 +6,11 @@ export default defineConfig({
         globals: true,
         environment: "jsdom",
         setupFiles: ["./src/__tests__/setup.ts"],
-        env: {
-            NODE_ENV: "test"
+        coverage: {
+            provider: "v8",
+            reporter: ["text", "json", "html"],
+            exclude: ["node_modules/", "src/__tests__/", "**/*.d.ts", "**/*.config.*", "**/stories/**"]
         }
-        // coverage: {
-        //     provider: "v8",
-        //     reporter: ["text", "json", "html"],
-        //     exclude: ["node_modules/", "src/__tests__/", "**/*.d.ts", "**/*.config.*", "**/stories/**"]
-        // }
     },
     resolve: {
         alias: {
@@ -30,9 +27,14 @@ export default defineConfig({
         global: "globalThis"
     },
     optimizeDeps: {
-        exclude: ["monaco-editor"]
+        exclude: ["monaco-editor", "@monaco-editor/react"]
     },
     esbuild: {
         target: "es2020"
+    },
+    server: {
+        fs: {
+            allow: [".."]
+        }
     }
 });
