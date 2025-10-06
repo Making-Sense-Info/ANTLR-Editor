@@ -11,6 +11,28 @@ const isTestEnvironment = typeof process !== "undefined" && process.env.NODE_ENV
 // Import Monaco Editor components directly
 import MonacoEditorComponent from "@monaco-editor/react";
 
+// Configure Monaco Editor to use local files instead of CDN
+if (typeof window !== "undefined" && !isTestEnvironment) {
+    // Set the base path for Monaco Editor to use local files
+    window.MonacoEnvironment = {
+        getWorkerUrl: function (_moduleId, label) {
+            if (label === "json") {
+                return "./node_modules/monaco-editor/esm/vs/language/json/json.worker.js";
+            }
+            if (label === "css" || label === "scss" || label === "less") {
+                return "./node_modules/monaco-editor/esm/vs/language/css/css.worker.js";
+            }
+            if (label === "html" || label === "handlebars" || label === "razor") {
+                return "./node_modules/monaco-editor/esm/vs/language/html/html.worker.js";
+            }
+            if (label === "typescript" || label === "javascript") {
+                return "./node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js";
+            }
+            return "./node_modules/monaco-editor/esm/vs/editor/editor.worker.js";
+        }
+    };
+}
+
 // Mock objects for test environment
 const mockMonacoEditor = () => null;
 
@@ -364,6 +386,22 @@ const Editor = ({
                         value={script}
                         height="100%"
                         width="100%"
+                        beforeMount={monaco => {
+                            // Configure Monaco Editor to use local files instead of CDN
+                            monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+                                target: monaco.languages.typescript.ScriptTarget.ES2015,
+                                allowNonTsExtensions: true,
+                                moduleResolution:
+                                    monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+                                module: monaco.languages.typescript.ModuleKind.CommonJS,
+                                noEmit: true,
+                                esModuleInterop: true,
+                                jsx: monaco.languages.typescript.JsxEmit.React,
+                                reactNamespace: "React",
+                                allowJs: true,
+                                typeRoots: ["node_modules/@types"]
+                            });
+                        }}
                         onMount={(e: any, m: any) => {
                             parseContent(tools, script);
                             onMount(e, m, tools);
