@@ -40,12 +40,13 @@ jobs:
                   yarn test:coverage
                   yarn build
             - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v4
+              uses: codecov/codecov-action@v5
               with:
                   file: ./coverage/coverage-final.json
                   flags: unittests
                   name: codecov-umbrella
                   fail_ci_if_error: false
+                  token: ${{ secrets.CODECOV_TOKEN }}
 
     build_storybook:
         name: Build Storybook app
