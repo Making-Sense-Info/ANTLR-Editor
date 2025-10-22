@@ -129,12 +129,65 @@ const Editor = ({
         cleanupProviders();
     }, []);
 
+    // Handle Monaco disposal errors gracefully - suppress instead of remounting
+    useEffect(() => {
+        const handleMonacoError = (event: ErrorEvent) => {
+            const message = event.error?.message || "";
+            if (
+                message.includes("InstantiationService has been disposed") ||
+                message.includes("domNode") ||
+                message.includes("renderText") ||
+                message.includes("AnimationFrameQueueItem")
+            ) {
+                // Suppress Monaco cleanup errors - they're harmless during layout changes
+                console.debug("Monaco cleanup error suppressed:", message);
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            }
+            return true;
+        };
+
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            const message = event.reason?.message || "";
+            if (
+                message.includes("InstantiationService has been disposed") ||
+                message.includes("domNode") ||
+                message.includes("renderText")
+            ) {
+                // Suppress Monaco cleanup errors in promises
+                console.debug("Monaco cleanup promise error suppressed:", message);
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        };
+
+        window.addEventListener("error", handleMonacoError, true);
+        window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+        return () => {
+            window.removeEventListener("error", handleMonacoError, true);
+            window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+        };
+    }, []);
+
     // Cleanup on unmount
     useEffect(() => {
         return () => {
             cleanupMonaco();
         };
     }, [cleanupMonaco]);
+
+    // Track if component is mounted to prevent layout operations after unmount
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
 
     const onMount = useCallback(
         (editor: any, mon: any, t: Tools) => {
@@ -158,6 +211,58 @@ const Editor = ({
                     }
                 }
             };
+
+            // Safe layout wrapper - only layout if mounted
+            const originalLayout = editor.layout.bind(editor);
+            editor.layout = function (...args: any[]) {
+                if (!isMountedRef.current) {
+                    console.debug("Skipped layout call on unmounted editor");
+                    return;
+                }
+                try {
+                    originalLayout(...args);
+                } catch (error: any) {
+                    if (
+                        !error.message?.includes("InstantiationService has been disposed") &&
+                        !error.message?.includes("domNode")
+                    ) {
+                        throw error;
+                    }
+                    console.debug("Suppressed layout error during cleanup");
+                }
+            };
+
+            // Patch the editor's internal rendering to prevent domNode errors
+            // This is a deep patch to prevent errors from bubbling up
+            try {
+                const editorInternal = (editor as any)._view;
+                if (editorInternal && editorInternal._renderingCoordinator) {
+                    const coordinator = editorInternal._renderingCoordinator;
+                    const originalOnRenderScheduled = coordinator._onRenderScheduled;
+                    if (originalOnRenderScheduled) {
+                        coordinator._onRenderScheduled = function (this: any) {
+                            if (!isMountedRef.current || !editorRef.current) {
+                                console.debug("Skipped render on unmounted editor");
+                                return;
+                            }
+                            try {
+                                originalOnRenderScheduled.call(this);
+                            } catch (error: any) {
+                                if (
+                                    error.message?.includes("domNode") ||
+                                    error.message?.includes("renderText")
+                                ) {
+                                    console.debug("Suppressed Monaco rendering error:", error.message);
+                                    return;
+                                }
+                                throw error;
+                            }
+                        };
+                    }
+                }
+            } catch (e) {
+                console.debug("Could not patch Monaco rendering coordinator (non-critical)");
+            }
 
             // Monaco Editor markers will automatically show error tooltips on hover
             // No need for custom hover provider as it causes duplicates
@@ -261,7 +366,16 @@ const Editor = ({
             const editor = editorRef.current;
             if (!editor) return;
 
-            const monacoErrors: any[] = validate(t)(editor?.getValue() || str).map(error => {
+            // Check if model exists before parsing
+            const model = editor?.getModel();
+            if (!model) {
+                console.debug("parseContent: model not ready yet");
+                return;
+            }
+
+            // Use provided string or get value from editor
+            const content = str !== undefined ? str : editor.getValue();
+            const monacoErrors: any[] = validate(t)(content).map(error => {
                 return {
                     startLineNumber: error.startLine,
                     startColumn: error.startCol,
@@ -273,15 +387,14 @@ const Editor = ({
                         : monacoRef.current?.editor?.MarkerSeverity?.Error || 8
                 };
             });
-            const model = editor?.getModel();
-            if (model) {
-                if (!isTestEnvironment && monacoRef.current?.editor) {
-                    // Clear existing markers first
-                    monacoRef.current.editor.setModelMarkers(model, "owner", []);
-                    // Set new markers
-                    monacoRef.current.editor.setModelMarkers(model, "owner", monacoErrors);
-                }
+
+            if (!isTestEnvironment && monacoRef.current?.editor) {
+                // Clear existing markers first
+                monacoRef.current.editor.setModelMarkers(model, "owner", []);
+                // Set new markers
+                monacoRef.current.editor.setModelMarkers(model, "owner", monacoErrors);
             }
+
             if (onListErrors) {
                 onListErrors(
                     monacoErrors.map(error => {

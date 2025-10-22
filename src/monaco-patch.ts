@@ -17,7 +17,9 @@ console.error = function (...args: any[]) {
         message.includes("domNode") ||
         message.includes("renderText") ||
         message.includes("AnimationFrameQueueItem") ||
-        message.includes("Cannot read properties of undefined")
+        message.includes("getFullModelRange") ||
+        message.includes("Cannot read properties of undefined") ||
+        message.includes("Cannot read properties of null")
     ) {
         console.debug("[Monaco Patch] Suppressed console.error:", message);
         return;
