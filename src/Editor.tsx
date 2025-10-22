@@ -167,105 +167,108 @@ const Editor = ({
         };
     }, [cleanupMonaco]);
 
-    const onMount = (editor: any, mon: any, t: Tools) => {
-        editorRef.current = editor;
-        monacoRef.current = mon;
-        setIsEditorReady(true);
+    const onMount = useCallback(
+        (editor: any, mon: any, t: Tools) => {
+            editorRef.current = editor;
+            monacoRef.current = mon;
+            setIsEditorReady(true);
 
-        // Monaco Editor markers will automatically show error tooltips on hover
-        // No need for custom hover provider as it causes duplicates
+            // Monaco Editor markers will automatically show error tooltips on hover
+            // No need for custom hover provider as it causes duplicates
 
-        // Ensure theme is applied for proper error highlighting
-        if (!isTestEnvironment && mon?.editor) {
-            // Force theme application
-            mon.editor.setTheme(theme || "vs-dark");
-        }
-
-        let parseContentTO: NodeJS.Timeout;
-        let contentChangeTO: NodeJS.Timeout | undefined;
-        parseContent(t, script);
-
-        editor.onDidChangeModelContent(() => {
-            if (parseContentTO) clearTimeout(parseContentTO);
-            parseContentTO = setTimeout(() => {
-                parseContent(t, script);
-            }, 0);
-            if (!contentChangeTO) {
-                if (setScript) {
-                    contentChangeTO = setTimeout(() => {
-                        setScript(editor.getValue());
-                        contentChangeTO = undefined;
-                    }, 200);
-                }
+            // Ensure theme is applied for proper error highlighting
+            if (!isTestEnvironment && mon?.editor) {
+                // Force theme application
+                mon.editor.setTheme(theme || "vs-dark");
             }
-        });
 
-        editor.onDidChangeCursorPosition((e: MonacoCursorPositionEvent) => {
-            setCursor(prev => ({
-                ...prev,
-                line: e.position.lineNumber,
-                column: e.position.column
-            }));
-        });
+            let parseContentTO: NodeJS.Timeout;
+            let contentChangeTO: NodeJS.Timeout | undefined;
+            parseContent(t, script);
 
-        editor.onDidChangeCursorSelection((e: MonacoSelectionEvent) => {
-            const selection = e.selection;
-            const length = editor?.getModel()?.getValueInRange(selection).length;
-            setCursor(prev => ({
-                ...prev,
-                selectionLength: length || 0
-            }));
-        });
+            editor.onDidChangeModelContent(() => {
+                if (parseContentTO) clearTimeout(parseContentTO);
+                parseContentTO = setTimeout(() => {
+                    parseContent(t, script);
+                }, 0);
+                if (!contentChangeTO) {
+                    if (setScript) {
+                        contentChangeTO = setTimeout(() => {
+                            setScript(editor.getValue());
+                            contentChangeTO = undefined;
+                        }, 200);
+                    }
+                }
+            });
 
-        if (shortcuts) {
-            Object.entries(shortcuts).forEach(([comboString, action]) => {
-                comboString.split(",").forEach(combo => {
-                    const keys = combo.trim().toLowerCase().split("+");
-                    let keyCode = null;
-                    let keyMod = 0;
+            editor.onDidChangeCursorPosition((e: MonacoCursorPositionEvent) => {
+                setCursor(prev => ({
+                    ...prev,
+                    line: e.position.lineNumber,
+                    column: e.position.column
+                }));
+            });
 
-                    keys.forEach(k => {
-                        if (k === "ctrl") keyMod |= mon?.KeyMod?.CtrlCmd || 1;
-                        else if (k === "meta") keyMod |= mon?.KeyMod?.CtrlCmd || 1;
-                        else if (k === "shift") keyMod |= mon?.KeyMod?.Shift || 2;
-                        else if (k === "alt") keyMod |= mon?.KeyMod?.Alt || 4;
-                        else {
-                            const upper = k.length === 1 ? k.toUpperCase() : k;
-                            if (mon?.KeyCode && `Key${upper}` in mon.KeyCode) {
-                                keyCode = mon.KeyCode[`Key${upper}` as keyof typeof mon.KeyCode];
-                            } else if (mon?.KeyCode && upper in mon.KeyCode) {
-                                keyCode = mon.KeyCode[upper as keyof typeof mon.KeyCode];
-                            } else {
-                                keyCode = null;
+            editor.onDidChangeCursorSelection((e: MonacoSelectionEvent) => {
+                const selection = e.selection;
+                const length = editor?.getModel()?.getValueInRange(selection).length;
+                setCursor(prev => ({
+                    ...prev,
+                    selectionLength: length || 0
+                }));
+            });
+
+            if (shortcuts) {
+                Object.entries(shortcuts).forEach(([comboString, action]) => {
+                    comboString.split(",").forEach(combo => {
+                        const keys = combo.trim().toLowerCase().split("+");
+                        let keyCode = null;
+                        let keyMod = 0;
+
+                        keys.forEach(k => {
+                            if (k === "ctrl") keyMod |= mon?.KeyMod?.CtrlCmd || 1;
+                            else if (k === "meta") keyMod |= mon?.KeyMod?.CtrlCmd || 1;
+                            else if (k === "shift") keyMod |= mon?.KeyMod?.Shift || 2;
+                            else if (k === "alt") keyMod |= mon?.KeyMod?.Alt || 4;
+                            else {
+                                const upper = k.length === 1 ? k.toUpperCase() : k;
+                                if (mon?.KeyCode && `Key${upper}` in mon.KeyCode) {
+                                    keyCode = mon.KeyCode[`Key${upper}` as keyof typeof mon.KeyCode];
+                                } else if (mon?.KeyCode && upper in mon.KeyCode) {
+                                    keyCode = mon.KeyCode[upper as keyof typeof mon.KeyCode];
+                                } else {
+                                    keyCode = null;
+                                }
                             }
+                        });
+
+                        if (keyCode !== null) {
+                            editor.addCommand(keyMod | keyCode, (e: any) => {
+                                e?.preventDefault?.();
+                                action();
+                            });
                         }
                     });
-
-                    if (keyCode !== null) {
-                        editor.addCommand(keyMod | keyCode, (e: any) => {
-                            e?.preventDefault?.();
-                            action();
-                        });
-                    }
                 });
-            });
-        }
-
-        editor.onKeyDown((e: MonacoKeyDownEvent) => {
-            const isMac = /Mac/.test(navigator.userAgent);
-            const metaPressed = e.metaKey;
-            const ctrlPressed = e.ctrlKey;
-
-            if (
-                (isMac && metaPressed && e.code === "Enter") ||
-                (!isMac && ctrlPressed && e.code === "Enter")
-            ) {
-                e.preventDefault();
-                e.stopPropagation();
-                shortcuts["ctrl+enter, meta+enter"]?.();
             }
-        });
-    };
+
+            editor.onKeyDown((e: MonacoKeyDownEvent) => {
+                const isMac = /Mac/.test(navigator.userAgent);
+                const metaPressed = e.metaKey;
+                const ctrlPressed = e.ctrlKey;
+
+                if (
+                    (isMac && metaPressed && e.code === "Enter") ||
+                    (!isMac && ctrlPressed && e.code === "Enter")
+                ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    shortcuts["ctrl+enter, meta+enter"]?.();
+                }
+            });
+        },
+        [script, shortcuts]
+    );
 
     const parseContent = useCallback(
         (t: Tools, str?: string) => {
