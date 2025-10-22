@@ -260,7 +260,7 @@ const Editor = ({
                         };
                     }
                 }
-            } catch (e) {
+            } catch {
                 console.debug("Could not patch Monaco rendering coordinator (non-critical)");
             }
 
