@@ -90,7 +90,6 @@ const Editor = ({
     const [ready, setReady] = useState<boolean>(false);
     const [vars, setVars] = useState(buildVariables(variables));
     const [isEditorReady, setIsEditorReady] = useState(false);
-    const [editorKey, setEditorKey] = useState(0);
 
     const [cursor, setCursor] = useState({
         line: 1,
@@ -118,39 +117,48 @@ const Editor = ({
         cleanupProviders();
     }, []);
 
-    // Handle Monaco disposal errors gracefully
+    // Handle Monaco disposal errors gracefully - suppress instead of remounting
     useEffect(() => {
         const handleMonacoError = (event: ErrorEvent) => {
-            if (event.error?.message?.includes("InstantiationService has been disposed")) {
-                console.warn("Monaco InstantiationService disposal detected, cleaning up...");
-                cleanupMonaco();
-                // Force a remount with a new key
-                setEditorKey(prev => prev + 1);
+            const message = event.error?.message || "";
+            if (
+                message.includes("InstantiationService has been disposed") ||
+                message.includes("domNode") ||
+                message.includes("renderText") ||
+                message.includes("AnimationFrameQueueItem")
+            ) {
+                // Suppress Monaco cleanup errors - they're harmless during layout changes
+                console.debug("Monaco cleanup error suppressed:", message);
                 event.preventDefault();
+                event.stopPropagation();
                 return false;
             }
             return true;
         };
 
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-            if (event.reason?.message?.includes("InstantiationService has been disposed")) {
-                console.warn("Monaco InstantiationService disposal detected in promise, cleaning up...");
-                cleanupMonaco();
-                setEditorKey(prev => prev + 1);
+            const message = event.reason?.message || "";
+            if (
+                message.includes("InstantiationService has been disposed") ||
+                message.includes("domNode") ||
+                message.includes("renderText")
+            ) {
+                // Suppress Monaco cleanup errors in promises
+                console.debug("Monaco cleanup promise error suppressed:", message);
                 event.preventDefault();
                 return false;
             }
             return true;
         };
 
-        window.addEventListener("error", handleMonacoError);
+        window.addEventListener("error", handleMonacoError, true);
         window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
         return () => {
-            window.removeEventListener("error", handleMonacoError);
+            window.removeEventListener("error", handleMonacoError, true);
             window.removeEventListener("unhandledrejection", handleUnhandledRejection);
         };
-    }, [cleanupMonaco]);
+    }, []);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -364,7 +372,6 @@ const Editor = ({
                 ) : (
                     // Production environment - use Monaco Editor
                     <MonacoEditor
-                        key={editorKey} // Use key to force remount when needed
                         value={script}
                         height="100%"
                         width="100%"
