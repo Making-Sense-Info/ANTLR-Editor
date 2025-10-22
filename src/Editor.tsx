@@ -101,10 +101,22 @@ const Editor = ({
     const cleanupMonaco = useCallback(() => {
         if (editorRef.current) {
             try {
+                // Get the model before disposing
+                const model = editorRef.current.getModel();
+
+                // Detach the model first to prevent further rendering
+                editorRef.current.setModel(null);
+
+                // Dispose the model
+                if (model) {
+                    model.dispose();
+                }
+
                 // Dispose the editor instance
                 editorRef.current.dispose();
             } catch (error) {
-                console.warn("Error disposing Monaco editor:", error);
+                // Silently catch dispose errors - they're expected during cleanup
+                console.debug("Monaco editor disposal (expected):", error);
             }
             editorRef.current = null;
         }
@@ -115,49 +127,6 @@ const Editor = ({
 
         // Cleanup providers
         cleanupProviders();
-    }, []);
-
-    // Handle Monaco disposal errors gracefully - suppress instead of remounting
-    useEffect(() => {
-        const handleMonacoError = (event: ErrorEvent) => {
-            const message = event.error?.message || "";
-            if (
-                message.includes("InstantiationService has been disposed") ||
-                message.includes("domNode") ||
-                message.includes("renderText") ||
-                message.includes("AnimationFrameQueueItem")
-            ) {
-                // Suppress Monaco cleanup errors - they're harmless during layout changes
-                console.debug("Monaco cleanup error suppressed:", message);
-                event.preventDefault();
-                event.stopPropagation();
-                return false;
-            }
-            return true;
-        };
-
-        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-            const message = event.reason?.message || "";
-            if (
-                message.includes("InstantiationService has been disposed") ||
-                message.includes("domNode") ||
-                message.includes("renderText")
-            ) {
-                // Suppress Monaco cleanup errors in promises
-                console.debug("Monaco cleanup promise error suppressed:", message);
-                event.preventDefault();
-                return false;
-            }
-            return true;
-        };
-
-        window.addEventListener("error", handleMonacoError, true);
-        window.addEventListener("unhandledrejection", handleUnhandledRejection);
-
-        return () => {
-            window.removeEventListener("error", handleMonacoError, true);
-            window.removeEventListener("unhandledrejection", handleUnhandledRejection);
-        };
     }, []);
 
     // Cleanup on unmount
@@ -172,6 +141,23 @@ const Editor = ({
             editorRef.current = editor;
             monacoRef.current = mon;
             setIsEditorReady(true);
+
+            // Wrap setModel to prevent multiple View creations during layout changes
+            const originalSetModel = editor.setModel.bind(editor);
+            editor.setModel = function (model: any) {
+                const currentModel = editor.getModel();
+                // Only set model if it's actually different
+                if (currentModel !== model) {
+                    try {
+                        originalSetModel(model);
+                    } catch (error: any) {
+                        if (!error.message?.includes("InstantiationService has been disposed")) {
+                            throw error;
+                        }
+                        console.debug("Suppressed setModel error during layout change");
+                    }
+                }
+            };
 
             // Monaco Editor markers will automatically show error tooltips on hover
             // No need for custom hover provider as it causes duplicates
