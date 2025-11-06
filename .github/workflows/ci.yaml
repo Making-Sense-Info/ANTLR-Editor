@@ -9,6 +9,7 @@ on:
 
 permissions:
     id-token: write # Required for OIDC
+    contents: read
 
 jobs:
     test_lint:
@@ -135,8 +136,8 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: 22
-                  registry-url: "https://registry.npmjs.org/"
-                  scope: "@making-sense-info"
+                  registry-url: "https://registry.npmjs.org"
+                  scope: "@making-sense"
                   always-auth: true
             - run: yarn
             - run: yarn build
