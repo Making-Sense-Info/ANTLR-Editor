@@ -7,6 +7,24 @@ class ConsoleErrorListener implements ANTLRErrorListener {
     syntaxError(recognizer, offendingSymbol, line, column, msg) {
         Log.info("ERROR " + msg, "ParserFacadeV3");
     }
+
+    // @ts-ignore TS7006 VALID
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    reportAttemptingFullContext(_recognizer, _dfa, _startIndex, _stopIndex, _conflictingAlts, _configs) {
+        // Optional method - can be empty
+    }
+
+    // @ts-ignore TS7006 VALID
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    reportContextSensitivity(_recognizer, _dfa, _startIndex, _stopIndex, _prediction, _configs) {
+        // Optional method - can be empty
+    }
+
+    // @ts-ignore TS7006 VALID
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    reportAmbiguity(_recognizer, _dfa, _startIndex, _stopIndex, _exact, _ambigAlts, _configs) {
+        // Optional method - can be empty
+    }
 }
 
 class Error {
@@ -40,6 +58,24 @@ class CollectorErrorListener implements ANTLRErrorListener {
             endColumn = column + offendingSymbol._text.length;
         }
         this.errors.push(new Error(line, line, column, endColumn, msg));
+    }
+
+    // @ts-ignore TS7006
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    reportAttemptingFullContext(_recognizer, _dfa, _startIndex, _stopIndex, _conflictingAlts, _configs) {
+        // Optional method - can be empty
+    }
+
+    // @ts-ignore TS7006
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    reportContextSensitivity(_recognizer, _dfa, _startIndex, _stopIndex, _prediction, _configs) {
+        // Optional method - can be empty
+    }
+
+    // @ts-ignore TS7006
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    reportAmbiguity(_recognizer, _dfa, _startIndex, _stopIndex, _exact, _ambigAlts, _configs) {
+        // Optional method - can be empty
     }
 }
 
