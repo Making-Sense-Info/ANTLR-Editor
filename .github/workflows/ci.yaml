@@ -134,8 +134,10 @@ jobs:
                   ref: ${{ github.ref }}
             - uses: actions/setup-node@v4
               with:
-                  registry-url: https://registry.npmjs.org/
                   node-version: 22
+                  registry-url: "https://registry.npmjs.org/"
+                  scope: "@making-sense-info"
+                  always-auth: true
             - run: yarn
             - run: yarn build
             - run: npx -y -p denoify@1.5.7 enable_short_npm_import_path
@@ -144,19 +146,11 @@ jobs:
             - uses: garronej/ts-ci@v2.1.0
               with:
                   action_name: remove_dark_mode_specific_images_from_readme
-            - name: Publishing on NPM
+            - name: Publish to npm (Trusted Publishing)
               run: |
-                  if [ "$(npm show . version)" = "$VERSION" ]; then
-                    echo "This version is already published"
-                    exit 0
-                  fi
-                  if [ "$NODE_AUTH_TOKEN" = "" ]; then
-                    echo "Can't publish on NPM, You must first create a secret called NPM_TOKEN that contains your NPM auth token. https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets"
-                    false
-                  fi
                   EXTRA_ARGS=""
                   if [ "$IS_PRE_RELEASE" = "true" ]; then
-                      EXTRA_ARGS="--tag next"
+                  EXTRA_ARGS="--tag next"
                   fi
                   npm publish $EXTRA_ARGS
               env:
