@@ -137,23 +137,11 @@ jobs:
               with:
                   node-version: 22
                   registry-url: "https://registry.npmjs.org"
-                  scope: "@making-sense"
-                  always-auth: true
-            - run: yarn
-            - run: yarn build
-            - run: npx -y -p denoify@1.5.7 enable_short_npm_import_path
-              env:
-                  DRY_RUN: "0"
-            - uses: garronej/ts-ci@v2.1.0
-              with:
-                  action_name: remove_dark_mode_specific_images_from_readme
-            - name: Publish to npm (Trusted Publishing)
-              run: |
-                  EXTRA_ARGS=""
-                  if [ "$IS_PRE_RELEASE" = "true" ]; then
-                  EXTRA_ARGS="--tag next"
-                  fi
-                  npm publish $EXTRA_ARGS
-              env:
-                  VERSION: ${{ needs.check_if_version_upgraded.outputs.to_version }}
-                  IS_PRE_RELEASE: ${{ needs.check_if_version_upgraded.outputs.is_pre_release }}
+            - name: Update NPM
+              run: npm install -g npm@latest
+            - name: Install dependencies with NPM
+              run: npm install
+            - name: Build with NPM
+              run: npm run build
+            - name: Publish with NPM
+              run: npm publish
