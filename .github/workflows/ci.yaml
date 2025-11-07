@@ -130,6 +130,11 @@ jobs:
         runs-on: ubuntu-latest
         needs: check_if_version_upgraded
         steps:
+            - run: echo "OWNER=${{ github.repository_owner }}"
+            - name: Debug OIDC
+              run: |
+                  echo "Checking OIDC identity..."
+                  npm whoami || echo "Anonymous"
             - uses: actions/checkout@v5
               with:
                   ref: ${{ github.ref }}
