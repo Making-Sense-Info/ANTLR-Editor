@@ -275,12 +275,13 @@ const Editor = ({
 
             let parseContentTO: NodeJS.Timeout;
             let contentChangeTO: NodeJS.Timeout | undefined;
-            parseContent(t, script);
+            parseContent(t);
 
             editor.onDidChangeModelContent(() => {
                 if (parseContentTO) clearTimeout(parseContentTO);
                 parseContentTO = setTimeout(() => {
-                    parseContent(t, script);
+                    // Always validate the live Monaco buffer to avoid stale-prop races.
+                    parseContent(t);
                 }, 0);
                 if (!contentChangeTO) {
                     if (setScript) {
@@ -478,17 +479,12 @@ const Editor = ({
                         height="100%"
                         width="100%"
                         onMount={(e: any, m: any) => {
-                            parseContent(tools, script);
+                            parseContent(tools);
                             onMount(e, m, tools);
                             getEditorWillMount(tools)({
                                 variables: vars,
                                 editor: e
                             })(m);
-                        }}
-                        onChange={() => {
-                            if (isEditorReady) {
-                                parseContent(tools);
-                            }
                         }}
                         theme={theme}
                         language={tools.id}
