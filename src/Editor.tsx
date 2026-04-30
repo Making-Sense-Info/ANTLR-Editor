@@ -4,6 +4,8 @@ import { getEditorWillMount, cleanupProviders } from "./utils/providers";
 import { Tools, Error, Variables } from "./model";
 import { buildVariables, buildUniqueVariables } from "./utils/variables";
 import EditorFooter from "./EditorFooter";
+import { shouldSuppressMonacoError } from "./utils/monaco-errors";
+import { IDisposable } from "monaco-editor";
 
 // Check if we're in a test environment
 const isTestEnvironment = typeof process !== "undefined" && process.env.NODE_ENV === "test";
@@ -98,7 +100,18 @@ const Editor = ({
     });
 
     // Cleanup function to properly dispose of Monaco resources
+    const subscriptionsRef = useRef<IDisposable[]>([]);
+
     const cleanupMonaco = useCallback(() => {
+        subscriptionsRef.current.forEach(disposable => {
+            try {
+                disposable.dispose();
+            } catch {
+                // Best-effort cleanup: Monaco can already be partially disposed.
+            }
+        });
+        subscriptionsRef.current = [];
+
         if (editorRef.current) {
             try {
                 // Get the model before disposing
@@ -129,18 +142,12 @@ const Editor = ({
         cleanupProviders();
     }, []);
 
-    // Handle Monaco disposal errors gracefully - suppress instead of remounting
+    // Handle Monaco disposal errors gracefully without global monkey patches.
     useEffect(() => {
         const handleMonacoError = (event: ErrorEvent) => {
-            const message = event.error?.message || "";
-            if (
-                message.includes("InstantiationService has been disposed") ||
-                message.includes("domNode") ||
-                message.includes("renderText") ||
-                message.includes("AnimationFrameQueueItem")
-            ) {
+            if (shouldSuppressMonacoError(event.error ?? event.message)) {
                 // Suppress Monaco cleanup errors - they're harmless during layout changes
-                console.debug("Monaco cleanup error suppressed:", message);
+                console.debug("Monaco cleanup error suppressed:", event.error?.message || event.message);
                 event.preventDefault();
                 event.stopPropagation();
                 return false;
@@ -149,14 +156,12 @@ const Editor = ({
         };
 
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-            const message = event.reason?.message || "";
-            if (
-                message.includes("InstantiationService has been disposed") ||
-                message.includes("domNode") ||
-                message.includes("renderText")
-            ) {
+            if (shouldSuppressMonacoError(event.reason)) {
                 // Suppress Monaco cleanup errors in promises
-                console.debug("Monaco cleanup promise error suppressed:", message);
+                console.debug(
+                    "Monaco cleanup promise error suppressed:",
+                    event.reason?.message || String(event.reason)
+                );
                 event.preventDefault();
                 return false;
             }
@@ -275,39 +280,46 @@ const Editor = ({
 
             let parseContentTO: NodeJS.Timeout;
             let contentChangeTO: NodeJS.Timeout | undefined;
-            parseContent(t, script);
+            parseContent(t);
 
-            editor.onDidChangeModelContent(() => {
-                if (parseContentTO) clearTimeout(parseContentTO);
-                parseContentTO = setTimeout(() => {
-                    parseContent(t, script);
-                }, 0);
-                if (!contentChangeTO) {
-                    if (setScript) {
-                        contentChangeTO = setTimeout(() => {
-                            setScript(editor.getValue());
-                            contentChangeTO = undefined;
-                        }, 200);
+            subscriptionsRef.current.push(
+                editor.onDidChangeModelContent(() => {
+                    if (parseContentTO) clearTimeout(parseContentTO);
+                    parseContentTO = setTimeout(() => {
+                        // Always validate the live Monaco buffer to avoid stale-prop races.
+                        parseContent(t);
+                    }, 0);
+                    if (!contentChangeTO) {
+                        if (setScript) {
+                            contentChangeTO = setTimeout(() => {
+                                setScript(editor.getValue());
+                                contentChangeTO = undefined;
+                            }, 200);
+                        }
                     }
-                }
-            });
+                })
+            );
 
-            editor.onDidChangeCursorPosition((e: MonacoCursorPositionEvent) => {
-                setCursor(prev => ({
-                    ...prev,
-                    line: e.position.lineNumber,
-                    column: e.position.column
-                }));
-            });
+            subscriptionsRef.current.push(
+                editor.onDidChangeCursorPosition((e: MonacoCursorPositionEvent) => {
+                    setCursor(prev => ({
+                        ...prev,
+                        line: e.position.lineNumber,
+                        column: e.position.column
+                    }));
+                })
+            );
 
-            editor.onDidChangeCursorSelection((e: MonacoSelectionEvent) => {
-                const selection = e.selection;
-                const length = editor?.getModel()?.getValueInRange(selection).length;
-                setCursor(prev => ({
-                    ...prev,
-                    selectionLength: length || 0
-                }));
-            });
+            subscriptionsRef.current.push(
+                editor.onDidChangeCursorSelection((e: MonacoSelectionEvent) => {
+                    const selection = e.selection;
+                    const length = editor?.getModel()?.getValueInRange(selection).length;
+                    setCursor(prev => ({
+                        ...prev,
+                        selectionLength: length || 0
+                    }));
+                })
+            );
 
             if (shortcuts) {
                 Object.entries(shortcuts).forEach(([comboString, action]) => {
@@ -343,22 +355,24 @@ const Editor = ({
                 });
             }
 
-            editor.onKeyDown((e: MonacoKeyDownEvent) => {
-                const isMac = /Mac/.test(navigator.userAgent);
-                const metaPressed = e.metaKey;
-                const ctrlPressed = e.ctrlKey;
+            subscriptionsRef.current.push(
+                editor.onKeyDown((e: MonacoKeyDownEvent) => {
+                    const isMac = /Mac/.test(navigator.userAgent);
+                    const metaPressed = e.metaKey;
+                    const ctrlPressed = e.ctrlKey;
 
-                if (
-                    (isMac && metaPressed && e.code === "Enter") ||
-                    (!isMac && ctrlPressed && e.code === "Enter")
-                ) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    shortcuts["ctrl+enter, meta+enter"]?.();
-                }
-            });
+                    if (
+                        (isMac && metaPressed && e.code === "Enter") ||
+                        (!isMac && ctrlPressed && e.code === "Enter")
+                    ) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        shortcuts["ctrl+enter, meta+enter"]?.();
+                    }
+                })
+            );
         },
-        [script, shortcuts]
+        [shortcuts]
     );
 
     const parseContent = useCallback(
@@ -478,17 +492,12 @@ const Editor = ({
                         height="100%"
                         width="100%"
                         onMount={(e: any, m: any) => {
-                            parseContent(tools, script);
+                            parseContent(tools);
                             onMount(e, m, tools);
                             getEditorWillMount(tools)({
                                 variables: vars,
                                 editor: e
                             })(m);
-                        }}
-                        onChange={() => {
-                            if (isEditorReady) {
-                                parseContent(tools);
-                            }
                         }}
                         theme={theme}
                         language={tools.id}
