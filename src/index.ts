@@ -1,7 +1,4 @@
-import { applyMonacoPatch } from "./monaco-patch";
-
-// Apply Monaco error suppression patch automatically on import
-applyMonacoPatch();
+// Opt-in patch: host apps decide if they need global listeners.
 
 export { default as AntlrEditor, CursorType } from "./Editor";
 export { cleanupProviders } from "./utils/providers";
