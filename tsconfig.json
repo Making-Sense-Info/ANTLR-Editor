@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "module": "CommonJS",
+        "moduleResolution": "node",
         "target": "ES2020",
         "lib": ["ES2022", "DOM"],
         "esModuleInterop": true,
@@ -14,6 +15,7 @@
         "noUnusedParameters": true,
         "incremental": true,
         "strict": true,
+        "types": ["node", "react"],
         "jsx": "react-jsx",
         "noFallthroughCasesInSwitch": true,
         "skipLibCheck": true,

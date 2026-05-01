@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { FC, useState, useEffect, useRef, useCallback } from "react";
 import { validate } from "./utils/ParserFacade";
 import { getEditorWillMount, cleanupProviders } from "./utils/providers";
 import { Tools, Error, Variables } from "./model";
@@ -8,7 +8,9 @@ import { shouldSuppressMonacoError } from "./utils/monaco-errors";
 import { IDisposable } from "monaco-editor";
 
 // Check if we're in a test environment
-const isTestEnvironment = typeof process !== "undefined" && process.env.NODE_ENV === "test";
+const isTestEnvironment =
+    typeof globalThis !== "undefined" &&
+    (globalThis as { process?: { env?: { NODE_ENV?: string } } }).process?.env?.NODE_ENV === "test";
 
 // Import Monaco Editor components directly
 import MonacoEditorComponent from "@monaco-editor/react";
@@ -67,7 +69,7 @@ type EditorProps = {
     theme?: string;
     options?: any;
     shortcuts: Record<string, () => void>;
-    FooterComponent?: React.FC<{ cursor: CursorType }>;
+    FooterComponent?: FC<{ cursor: CursorType }>;
     displayFooter: boolean;
 };
 
@@ -278,8 +280,8 @@ const Editor = ({
                 mon.editor.setTheme(theme || "vs-dark");
             }
 
-            let parseContentTO: NodeJS.Timeout;
-            let contentChangeTO: NodeJS.Timeout | undefined;
+            let parseContentTO: ReturnType<typeof setTimeout> | undefined;
+            let contentChangeTO: ReturnType<typeof setTimeout> | undefined;
             parseContent(t);
 
             subscriptionsRef.current.push(

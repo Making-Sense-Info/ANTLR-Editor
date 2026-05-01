@@ -135,6 +135,8 @@ jobs:
               with:
                   node-version: 22
                   registry-url: "https://registry.npmjs.org"
-            - run: npm run build --if-present
-            - run: npm test
+            - name: Install dependencies
+              run: yarn --frozen-lockfile
+            - run: yarn build
+            - run: yarn test:run
             - run: npm publish
