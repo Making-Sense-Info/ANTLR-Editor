@@ -16,8 +16,8 @@ jobs:
         runs-on: ubuntu-latest
         if: ${{ !github.event.created && github.repository != 'garronej/ts-ci' }}
         steps:
-            - uses: actions/checkout@v5
-            - uses: actions/setup-node@v4
+            - uses: actions/checkout@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version: 22
             - name: If this step fails run 'yarn lint' and 'yarn format' then commit again.
@@ -34,8 +34,8 @@ jobs:
                 os: [windows-latest, ubuntu-latest]
         name: Test with Node v${{ matrix.node }} on ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v5
-            - uses: actions/setup-node@v4
+            - uses: actions/checkout@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version: ${{ matrix.node }}
             - uses: bahmutov/npm-install@v1
@@ -58,7 +58,7 @@ jobs:
         # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v6
               with:
                   ref: ${{ github.ref }}
             - name: Upload sample files
@@ -66,7 +66,7 @@ jobs:
               with:
                   name: samples
                   path: samples/
-            - uses: actions/setup-node@v4
+            - uses: actions/setup-node@v6
               with:
                   node-version: 22
             - name: Build Storybook
