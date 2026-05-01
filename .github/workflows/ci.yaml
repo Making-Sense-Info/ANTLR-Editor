@@ -19,7 +19,7 @@ jobs:
             - uses: actions/checkout@v6
             - uses: actions/setup-node@v6
               with:
-                  node-version: 22
+                  node-version: 24
             - name: If this step fails run 'yarn lint' and 'yarn format' then commit again.
               run: |
                   yarn
@@ -30,7 +30,7 @@ jobs:
         needs: test_lint
         strategy:
             matrix:
-                node: ["22"]
+                node: ["24"]
                 os: [windows-latest, ubuntu-latest]
         name: Test with Node v${{ matrix.node }} on ${{ matrix.os }}
         steps:
@@ -38,9 +38,8 @@ jobs:
             - uses: actions/setup-node@v6
               with:
                   node-version: ${{ matrix.node }}
-            - uses: bahmutov/npm-install@v1
             - run: |
-                  yarn
+                  yarn --frozen-lockfile
                   yarn test:coverage
                   yarn build
             - name: Upload coverage to Codecov
@@ -68,7 +67,7 @@ jobs:
                   path: samples/
             - uses: actions/setup-node@v6
               with:
-                  node-version: 22
+                  node-version: 24
             - name: Build Storybook
               run: |
                   yarn
@@ -133,7 +132,7 @@ jobs:
             - uses: actions/checkout@v6
             - uses: actions/setup-node@v6
               with:
-                  node-version: 22
+                  node-version: 24
                   registry-url: "https://registry.npmjs.org"
             - name: Install dependencies
               run: yarn --frozen-lockfile
