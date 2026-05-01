@@ -126,8 +126,12 @@ jobs:
                   branch: ${{ github.head_ref || github.ref }}
 
     publish_on_npm:
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         needs: check_if_version_upgraded
+        concurrency:
+            group: npm-publish-main
+            cancel-in-progress: false
         permissions:
             id-token: write
             contents: read
