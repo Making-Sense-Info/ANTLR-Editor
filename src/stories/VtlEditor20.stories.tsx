@@ -65,6 +65,10 @@ const shortcuts = {
     }
 };
 
+const onSelectionChange = (selection: { text: string; startLine: number; startColumn: number }) => {
+    console.log("Editor selection:", selection);
+};
+
 export const Enriched = {
     args: {
         initialRule: "start",
@@ -74,6 +78,7 @@ export const Enriched = {
             "https://raw.githubusercontent.com/Making-Sense-Info/ANTLR-Editor/gh-pages/samples/variablesInputFile2.json"
         ],
         shortcuts,
+        onSelectionChange,
         FooterComponent: ({ cursor }: { cursor: CursorType }) => (
             <div
                 style={{

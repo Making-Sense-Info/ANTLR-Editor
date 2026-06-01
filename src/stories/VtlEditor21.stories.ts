@@ -74,6 +74,10 @@ const variables = {
     age: { type: VariableType.INTEGER, role: VariableRole.MEASURE }
 };
 
+const onSelectionChange = (selection: { text: string; startLine: number; startColumn: number }) => {
+    console.log("Editor selection:", selection);
+};
+
 export const Enriched = {
     args: {
         initialRule: "start",
@@ -81,7 +85,8 @@ export const Enriched = {
         variablesInputURLs: [
             "https://raw.githubusercontent.com/Making-Sense-Info/ANTLR-Editor/gh-pages/samples/variablesInputFile1.json",
             "https://raw.githubusercontent.com/Making-Sense-Info/ANTLR-Editor/gh-pages/samples/variablesInputFile2.json"
-        ]
+        ],
+        onSelectionChange
     },
     argTypes: {
         initialRule: { control: "select", options: ["start", "expr"] },
