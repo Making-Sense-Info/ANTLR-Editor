@@ -5,7 +5,16 @@ import { Tools, Error, Variables } from "./model";
 import { buildVariables, buildUniqueVariables } from "./utils/variables";
 import EditorFooter from "./EditorFooter";
 import { shouldSuppressMonacoError } from "./utils/monaco-errors";
+import {
+    buildMonacoSelection,
+    buildTextareaSelection,
+    createSelectionChangeNotifier,
+    type EditorSelection,
+    type SelectionChangeNotifier
+} from "./utils/selection";
 import { IDisposable } from "monaco-editor";
+
+export type { EditorSelection };
 
 // Check if we're in a test environment
 const isTestEnvironment =
@@ -71,6 +80,7 @@ type EditorProps = {
     shortcuts: Record<string, () => void>;
     FooterComponent?: FC<{ cursor: CursorType }>;
     displayFooter: boolean;
+    onSelectionChange?: (selection: EditorSelection) => void;
 };
 
 const Editor = ({
@@ -87,7 +97,8 @@ const Editor = ({
     options,
     shortcuts,
     FooterComponent,
-    displayFooter = true
+    displayFooter = true,
+    onSelectionChange
 }: EditorProps) => {
     const editorRef = useRef<any>(null);
     const monacoRef = useRef<any>(null);
@@ -103,6 +114,20 @@ const Editor = ({
 
     // Cleanup function to properly dispose of Monaco resources
     const subscriptionsRef = useRef<IDisposable[]>([]);
+    const selectionNotifierRef = useRef<SelectionChangeNotifier | null>(null);
+
+    useEffect(() => {
+        selectionNotifierRef.current = onSelectionChange
+            ? createSelectionChangeNotifier(onSelectionChange)
+            : null;
+    }, [onSelectionChange]);
+
+    const reportSelection = useCallback((editor: Parameters<typeof buildMonacoSelection>[0]) => {
+        const notifier = selectionNotifierRef.current;
+        if (!notifier) return;
+        const { payload, hasSelection } = buildMonacoSelection(editor);
+        notifier.notify(payload, hasSelection);
+    }, []);
 
     const cleanupMonaco = useCallback(() => {
         subscriptionsRef.current.forEach(disposable => {
@@ -320,6 +345,7 @@ const Editor = ({
                         ...prev,
                         selectionLength: length || 0
                     }));
+                    reportSelection(editor);
                 })
             );
 
@@ -374,7 +400,7 @@ const Editor = ({
                 })
             );
         },
-        [shortcuts]
+        [shortcuts, reportSelection]
     );
 
     const parseContent = useCallback(
@@ -452,6 +478,32 @@ const Editor = ({
 
     const isDark = theme.includes("dark");
 
+    useEffect(() => {
+        if (!ready || !isTestEnvironment || !onSelectionChange) return;
+        const { payload, hasSelection } = buildTextareaSelection(script || "", 0, 0);
+        selectionNotifierRef.current?.notify(payload, hasSelection);
+    }, [ready, onSelectionChange]);
+
+    const handleTextareaSelect = useCallback(
+        (value: string, selectionStart: number, selectionEnd: number) => {
+            const lines = value.substring(0, selectionStart).split("\n");
+            setCursor({
+                line: lines.length,
+                column: lines[lines.length - 1].length + 1,
+                selectionLength: Math.abs(selectionEnd - selectionStart)
+            });
+            const notifier = selectionNotifierRef.current;
+            if (!notifier) return;
+            const { payload, hasSelection } = buildTextareaSelection(
+                value,
+                selectionStart,
+                selectionEnd
+            );
+            notifier.notify(payload, hasSelection);
+        },
+        []
+    );
+
     if (!ready) return null;
 
     const bannerHeight = displayFooter ? 22 : 0;
@@ -466,15 +518,19 @@ const Editor = ({
                         value={script || ""}
                         onChange={e => {
                             setScript?.(e.target.value);
-                            // Simulate cursor position
-                            const textarea = e.target;
-                            const cursorPos = textarea.selectionStart;
-                            const lines = textarea.value.substring(0, cursorPos).split("\n");
-                            setCursor({
-                                line: lines.length,
-                                column: lines[lines.length - 1].length + 1,
-                                selectionLength: 0
-                            });
+                            handleTextareaSelect(
+                                e.target.value,
+                                e.target.selectionStart,
+                                e.target.selectionEnd
+                            );
+                        }}
+                        onSelect={e => {
+                            const textarea = e.currentTarget;
+                            handleTextareaSelect(
+                                textarea.value,
+                                textarea.selectionStart,
+                                textarea.selectionEnd
+                            );
                         }}
                         style={{
                             width: "100%",
