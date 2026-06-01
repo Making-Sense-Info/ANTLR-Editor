@@ -196,6 +196,44 @@ describe("Editor", () => {
         expect(screen.getByTestId("monaco-editor-mock")).toBeDefined();
     });
 
+    it("calls onSelectionChange once with empty selection on mount", () => {
+        const onSelectionChange = vi.fn();
+        render(<Editor {...defaultProps} onSelectionChange={onSelectionChange} />);
+
+        expect(onSelectionChange).toHaveBeenCalledTimes(1);
+        expect(onSelectionChange).toHaveBeenCalledWith({
+            text: "",
+            startLine: 0,
+            startColumn: 0
+        });
+    });
+
+    it("calls onSelectionChange when textarea selection changes", () => {
+        const onSelectionChange = vi.fn();
+        render(<Editor {...defaultProps} script="hello world" onSelectionChange={onSelectionChange} />);
+
+        const textarea = screen.getByTestId("monaco-editor-mock") as HTMLTextAreaElement;
+        onSelectionChange.mockClear();
+        textarea.setSelectionRange(0, 5);
+        fireEvent.select(textarea);
+
+        expect(onSelectionChange).toHaveBeenCalledWith({
+            text: "hello",
+            startLine: 1,
+            startColumn: 1
+        });
+    });
+
+    it("does not call onSelectionChange again when selection stays empty", () => {
+        const onSelectionChange = vi.fn();
+        render(<Editor {...defaultProps} onSelectionChange={onSelectionChange} />);
+
+        const textarea = screen.getByTestId("monaco-editor-mock") as HTMLTextAreaElement;
+        fireEvent.select(textarea);
+
+        expect(onSelectionChange).toHaveBeenCalledTimes(1);
+    });
+
     it("handles empty script", () => {
         render(<Editor {...defaultProps} script="" />);
 

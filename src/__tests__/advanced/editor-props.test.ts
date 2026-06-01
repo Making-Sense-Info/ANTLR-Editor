@@ -220,6 +220,29 @@ describe("Editor Props", () => {
 
             expect(typeof props.FooterComponent).toBe("function");
         });
+
+        it("should handle onSelectionChange callback", () => {
+            const onSelectionChange = (selection: {
+                text: string;
+                startLine: number;
+                startColumn: number;
+            }) => console.log(selection);
+
+            const props = {
+                onSelectionChange,
+                tools: {
+                    id: "vtl",
+                    initialRule: "start",
+                    grammar: "",
+                    Lexer: class {},
+                    Parser: class {}
+                },
+                shortcuts: {},
+                displayFooter: true
+            };
+
+            expect(typeof props.onSelectionChange).toBe("function");
+        });
     });
 
     describe("Default Values", () => {
