@@ -1,6 +1,6 @@
 {
     "name": "@making-sense/antlr-editor",
-    "version": "2.9.1",
+    "version": "2.9.2",
     "description": "ANTLR Typescript editor",
     "repository": {
         "type": "git",
@@ -8,8 +8,9 @@
     },
     "scripts": {
         "prepare": "husky install",
-        "build": "tsc",
-        "prepublishOnly": "npm run build",
+        "build": "node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.rmSync('tsconfig.tsbuildinfo',{force:true});\" && tsc",
+        "verify:dist": "node scripts/verify-dist.mjs",
+        "prepublishOnly": "npm run build && npm run verify:dist",
         "test": "vitest",
         "test:run": "vitest run",
         "test:coverage": "vitest run --coverage",

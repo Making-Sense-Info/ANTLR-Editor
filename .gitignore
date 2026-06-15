@@ -42,6 +42,7 @@ jspm_packages
 
 /.yarn_home
 /dist
+tsconfig.tsbuildinfo
 
 # Storybook
 storybook-static
