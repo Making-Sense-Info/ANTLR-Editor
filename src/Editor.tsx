@@ -109,554 +109,548 @@ function Editor({
     onSelectionChange
 }: EditorProps) {
     const editorRef = useRef<any>(null);
-        const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-        const monacoRef = useRef<any>(null);
-        const [ready, setReady] = useState<boolean>(false);
-        const [vars, setVars] = useState(buildVariables(variables));
-        const [isEditorReady, setIsEditorReady] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const monacoRef = useRef<any>(null);
+    const [ready, setReady] = useState<boolean>(false);
+    const [vars, setVars] = useState(buildVariables(variables));
+    const [isEditorReady, setIsEditorReady] = useState(false);
 
-        const [cursor, setCursor] = useState({
-            line: 1,
-            column: 1,
-            selectionLength: 0
-        });
+    const [cursor, setCursor] = useState({
+        line: 1,
+        column: 1,
+        selectionLength: 0
+    });
 
-        // Cleanup function to properly dispose of Monaco resources
-        const subscriptionsRef = useRef<IDisposable[]>([]);
-        const selectionNotifierRef = useRef<SelectionChangeNotifier | null>(null);
+    // Cleanup function to properly dispose of Monaco resources
+    const subscriptionsRef = useRef<IDisposable[]>([]);
+    const selectionNotifierRef = useRef<SelectionChangeNotifier | null>(null);
 
-        useEffect(() => {
-            selectionNotifierRef.current = onSelectionChange
-                ? createSelectionChangeNotifier(onSelectionChange)
-                : null;
-        }, [onSelectionChange]);
+    useEffect(() => {
+        selectionNotifierRef.current = onSelectionChange
+            ? createSelectionChangeNotifier(onSelectionChange)
+            : null;
+    }, [onSelectionChange]);
 
-        const reportSelection = useCallback((editor: Parameters<typeof buildMonacoSelection>[0]) => {
-            const notifier = selectionNotifierRef.current;
-            if (!notifier) return;
-            const { payload, hasSelection } = buildMonacoSelection(editor);
-            notifier.notify(payload, hasSelection);
-        }, []);
+    const reportSelection = useCallback((editor: Parameters<typeof buildMonacoSelection>[0]) => {
+        const notifier = selectionNotifierRef.current;
+        if (!notifier) return;
+        const { payload, hasSelection } = buildMonacoSelection(editor);
+        notifier.notify(payload, hasSelection);
+    }, []);
 
-        const cleanupMonaco = useCallback(() => {
-            subscriptionsRef.current.forEach(disposable => {
-                try {
-                    disposable.dispose();
-                } catch {
-                    // Best-effort cleanup: Monaco can already be partially disposed.
-                }
-            });
-            subscriptionsRef.current = [];
-
-            if (editorRef.current) {
-                try {
-                    // Get the model before disposing
-                    const model = editorRef.current.getModel();
-
-                    // Detach the model first to prevent further rendering
-                    editorRef.current.setModel(null);
-
-                    // Dispose the model
-                    if (model) {
-                        model.dispose();
-                    }
-
-                    // Dispose the editor instance
-                    editorRef.current.dispose();
-                } catch (error) {
-                    // Silently catch dispose errors - they're expected during cleanup
-                    console.debug("Monaco editor disposal (expected):", error);
-                }
-                editorRef.current = null;
+    const cleanupMonaco = useCallback(() => {
+        subscriptionsRef.current.forEach(disposable => {
+            try {
+                disposable.dispose();
+            } catch {
+                // Best-effort cleanup: Monaco can already be partially disposed.
             }
+        });
+        subscriptionsRef.current = [];
 
-            // Clear Monaco reference
-            monacoRef.current = null;
-            setIsEditorReady(false);
+        if (editorRef.current) {
+            try {
+                // Get the model before disposing
+                const model = editorRef.current.getModel();
 
-            // Cleanup providers
-            cleanupProviders();
-        }, []);
+                // Detach the model first to prevent further rendering
+                editorRef.current.setModel(null);
 
-        // Handle Monaco disposal errors gracefully without global monkey patches.
-        useEffect(() => {
-            const handleMonacoError = (event: ErrorEvent) => {
-                if (shouldSuppressMonacoError(event.error ?? event.message)) {
-                    // Suppress Monaco cleanup errors - they're harmless during layout changes
-                    console.debug(
-                        "Monaco cleanup error suppressed:",
-                        event.error?.message || event.message
-                    );
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return false;
+                // Dispose the model
+                if (model) {
+                    model.dispose();
                 }
-                return true;
-            };
 
-            const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-                if (shouldSuppressMonacoError(event.reason)) {
-                    // Suppress Monaco cleanup errors in promises
-                    console.debug(
-                        "Monaco cleanup promise error suppressed:",
-                        event.reason?.message || String(event.reason)
-                    );
-                    event.preventDefault();
-                    return false;
-                }
-                return true;
-            };
+                // Dispose the editor instance
+                editorRef.current.dispose();
+            } catch (error) {
+                // Silently catch dispose errors - they're expected during cleanup
+                console.debug("Monaco editor disposal (expected):", error);
+            }
+            editorRef.current = null;
+        }
 
-            window.addEventListener("error", handleMonacoError, true);
-            window.addEventListener("unhandledrejection", handleUnhandledRejection);
+        // Clear Monaco reference
+        monacoRef.current = null;
+        setIsEditorReady(false);
 
-            return () => {
-                window.removeEventListener("error", handleMonacoError, true);
-                window.removeEventListener("unhandledrejection", handleUnhandledRejection);
-            };
-        }, []);
+        // Cleanup providers
+        cleanupProviders();
+    }, []);
 
-        // Cleanup on unmount
-        useEffect(() => {
-            return () => {
-                cleanupMonaco();
-            };
-        }, [cleanupMonaco]);
+    // Handle Monaco disposal errors gracefully without global monkey patches.
+    useEffect(() => {
+        const handleMonacoError = (event: ErrorEvent) => {
+            if (shouldSuppressMonacoError(event.error ?? event.message)) {
+                // Suppress Monaco cleanup errors - they're harmless during layout changes
+                console.debug("Monaco cleanup error suppressed:", event.error?.message || event.message);
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            }
+            return true;
+        };
 
-        // Track if component is mounted to prevent layout operations after unmount
-        const isMountedRef = useRef(true);
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            if (shouldSuppressMonacoError(event.reason)) {
+                // Suppress Monaco cleanup errors in promises
+                console.debug(
+                    "Monaco cleanup promise error suppressed:",
+                    event.reason?.message || String(event.reason)
+                );
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        };
 
-        useEffect(() => {
-            isMountedRef.current = true;
-            return () => {
-                isMountedRef.current = false;
-            };
-        }, []);
+        window.addEventListener("error", handleMonacoError, true);
+        window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
-        const onMount = useCallback(
-            (editor: any, mon: any, t: Tools) => {
-                editorRef.current = editor;
-                monacoRef.current = mon;
-                setIsEditorReady(true);
+        return () => {
+            window.removeEventListener("error", handleMonacoError, true);
+            window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+        };
+    }, []);
 
-                // Wrap setModel to prevent multiple View creations during layout changes
-                const originalSetModel = editor.setModel.bind(editor);
-                editor.setModel = function (model: any) {
-                    const currentModel = editor.getModel();
-                    // Only set model if it's actually different
-                    if (currentModel !== model) {
-                        try {
-                            originalSetModel(model);
-                        } catch (error: any) {
-                            if (!error.message?.includes("InstantiationService has been disposed")) {
-                                throw error;
-                            }
-                            console.debug("Suppressed setModel error during layout change");
-                        }
-                    }
-                };
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            cleanupMonaco();
+        };
+    }, [cleanupMonaco]);
 
-                // Safe layout wrapper - only layout if mounted
-                const originalLayout = editor.layout.bind(editor);
-                editor.layout = function (...args: any[]) {
-                    if (!isMountedRef.current) {
-                        console.debug("Skipped layout call on unmounted editor");
-                        return;
-                    }
+    // Track if component is mounted to prevent layout operations after unmount
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
+    const onMount = useCallback(
+        (editor: any, mon: any, t: Tools) => {
+            editorRef.current = editor;
+            monacoRef.current = mon;
+            setIsEditorReady(true);
+
+            // Wrap setModel to prevent multiple View creations during layout changes
+            const originalSetModel = editor.setModel.bind(editor);
+            editor.setModel = function (model: any) {
+                const currentModel = editor.getModel();
+                // Only set model if it's actually different
+                if (currentModel !== model) {
                     try {
-                        originalLayout(...args);
+                        originalSetModel(model);
                     } catch (error: any) {
-                        if (
-                            !error.message?.includes("InstantiationService has been disposed") &&
-                            !error.message?.includes("domNode")
-                        ) {
+                        if (!error.message?.includes("InstantiationService has been disposed")) {
                             throw error;
                         }
-                        console.debug("Suppressed layout error during cleanup");
+                        console.debug("Suppressed setModel error during layout change");
                     }
-                };
-
-                // Patch the editor's internal rendering to prevent domNode errors
-                // This is a deep patch to prevent errors from bubbling up
-                try {
-                    const editorInternal = (editor as any)._view;
-                    if (editorInternal && editorInternal._renderingCoordinator) {
-                        const coordinator = editorInternal._renderingCoordinator;
-                        const originalOnRenderScheduled = coordinator._onRenderScheduled;
-                        if (originalOnRenderScheduled) {
-                            coordinator._onRenderScheduled = function (this: any) {
-                                if (!isMountedRef.current || !editorRef.current) {
-                                    console.debug("Skipped render on unmounted editor");
-                                    return;
-                                }
-                                try {
-                                    originalOnRenderScheduled.call(this);
-                                } catch (error: any) {
-                                    if (
-                                        error.message?.includes("domNode") ||
-                                        error.message?.includes("renderText")
-                                    ) {
-                                        console.debug(
-                                            "Suppressed Monaco rendering error:",
-                                            error.message
-                                        );
-                                        return;
-                                    }
-                                    throw error;
-                                }
-                            };
-                        }
-                    }
-                } catch {
-                    console.debug("Could not patch Monaco rendering coordinator (non-critical)");
                 }
+            };
 
-                // Monaco Editor markers will automatically show error tooltips on hover
-                // No need for custom hover provider as it causes duplicates
-
-                // Ensure theme is applied for proper error highlighting
-                if (!isTestEnvironment && mon?.editor) {
-                    // Force theme application
-                    mon.editor.setTheme(theme || "vs-dark");
-                }
-
-                let parseContentTO: ReturnType<typeof setTimeout> | undefined;
-                let contentChangeTO: ReturnType<typeof setTimeout> | undefined;
-                parseContent(t);
-
-                subscriptionsRef.current.push(
-                    editor.onDidChangeModelContent(() => {
-                        if (parseContentTO) clearTimeout(parseContentTO);
-                        parseContentTO = setTimeout(() => {
-                            // Always validate the live Monaco buffer to avoid stale-prop races.
-                            parseContent(t);
-                        }, 0);
-                        if (!contentChangeTO) {
-                            if (setScript) {
-                                contentChangeTO = setTimeout(() => {
-                                    setScript(editor.getValue());
-                                    contentChangeTO = undefined;
-                                }, 200);
-                            }
-                        }
-                    })
-                );
-
-                subscriptionsRef.current.push(
-                    editor.onDidChangeCursorPosition((e: MonacoCursorPositionEvent) => {
-                        setCursor(prev => ({
-                            ...prev,
-                            line: e.position.lineNumber,
-                            column: e.position.column
-                        }));
-                    })
-                );
-
-                subscriptionsRef.current.push(
-                    editor.onDidChangeCursorSelection((e: MonacoSelectionEvent) => {
-                        const selection = e.selection;
-                        const length = editor?.getModel()?.getValueInRange(selection).length;
-                        setCursor(prev => ({
-                            ...prev,
-                            selectionLength: length || 0
-                        }));
-                        reportSelection(editor);
-                    })
-                );
-
-                if (shortcuts) {
-                    Object.entries(shortcuts).forEach(([comboString, action]) => {
-                        comboString.split(",").forEach(combo => {
-                            const keys = combo.trim().toLowerCase().split("+");
-                            let keyCode = null;
-                            let keyMod = 0;
-
-                            keys.forEach(k => {
-                                if (k === "ctrl") keyMod |= mon?.KeyMod?.CtrlCmd || 1;
-                                else if (k === "meta") keyMod |= mon?.KeyMod?.CtrlCmd || 1;
-                                else if (k === "shift") keyMod |= mon?.KeyMod?.Shift || 2;
-                                else if (k === "alt") keyMod |= mon?.KeyMod?.Alt || 4;
-                                else {
-                                    const upper = k.length === 1 ? k.toUpperCase() : k;
-                                    if (mon?.KeyCode && `Key${upper}` in mon.KeyCode) {
-                                        keyCode = mon.KeyCode[`Key${upper}` as keyof typeof mon.KeyCode];
-                                    } else if (mon?.KeyCode && upper in mon.KeyCode) {
-                                        keyCode = mon.KeyCode[upper as keyof typeof mon.KeyCode];
-                                    } else {
-                                        keyCode = null;
-                                    }
-                                }
-                            });
-
-                            if (keyCode !== null) {
-                                editor.addCommand(keyMod | keyCode, (e: any) => {
-                                    e?.preventDefault?.();
-                                    action();
-                                });
-                            }
-                        });
-                    });
-                }
-
-                subscriptionsRef.current.push(
-                    editor.onKeyDown((e: MonacoKeyDownEvent) => {
-                        const isMac = /Mac/.test(navigator.userAgent);
-                        const metaPressed = e.metaKey;
-                        const ctrlPressed = e.ctrlKey;
-
-                        if (
-                            (isMac && metaPressed && e.code === "Enter") ||
-                            (!isMac && ctrlPressed && e.code === "Enter")
-                        ) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            shortcuts["ctrl+enter, meta+enter"]?.();
-                        }
-                    })
-                );
-            },
-            [shortcuts, reportSelection]
-        );
-
-        const parseContent = useCallback(
-            (t: Tools, str?: string) => {
-                const editor = editorRef.current;
-                if (!editor) return;
-
-                // Check if model exists before parsing
-                const model = editor?.getModel();
-                if (!model) {
-                    console.debug("parseContent: model not ready yet");
+            // Safe layout wrapper - only layout if mounted
+            const originalLayout = editor.layout.bind(editor);
+            editor.layout = function (...args: any[]) {
+                if (!isMountedRef.current) {
+                    console.debug("Skipped layout call on unmounted editor");
                     return;
                 }
-
-                // Use provided string or get value from editor
-                const content = str !== undefined ? str : editor.getValue();
-                const monacoErrors: any[] = validate(t)(content).map(error => {
-                    return {
-                        startLineNumber: error.startLine,
-                        startColumn: error.startCol,
-                        endLineNumber: error.endLine,
-                        endColumn: error.endCol,
-                        message: error.message,
-                        severity: isTestEnvironment
-                            ? 1
-                            : monacoRef.current?.editor?.MarkerSeverity?.Error || 8
-                    };
-                });
-
-                if (!isTestEnvironment && monacoRef.current?.editor) {
-                    // Clear existing markers first
-                    monacoRef.current.editor.setModelMarkers(model, "owner", []);
-                    // Set new markers
-                    monacoRef.current.editor.setModelMarkers(model, "owner", monacoErrors);
+                try {
+                    originalLayout(...args);
+                } catch (error: any) {
+                    if (
+                        !error.message?.includes("InstantiationService has been disposed") &&
+                        !error.message?.includes("domNode")
+                    ) {
+                        throw error;
+                    }
+                    console.debug("Suppressed layout error during cleanup");
                 }
+            };
 
-                if (onListErrors) {
-                    onListErrors(
-                        monacoErrors.map(error => {
-                            return {
-                                line: error.startLineNumber,
-                                column: error.startColumn,
-                                message: error.message
-                            } as Error;
-                        })
-                    );
+            // Patch the editor's internal rendering to prevent domNode errors
+            // This is a deep patch to prevent errors from bubbling up
+            try {
+                const editorInternal = (editor as any)._view;
+                if (editorInternal && editorInternal._renderingCoordinator) {
+                    const coordinator = editorInternal._renderingCoordinator;
+                    const originalOnRenderScheduled = coordinator._onRenderScheduled;
+                    if (originalOnRenderScheduled) {
+                        coordinator._onRenderScheduled = function (this: any) {
+                            if (!isMountedRef.current || !editorRef.current) {
+                                console.debug("Skipped render on unmounted editor");
+                                return;
+                            }
+                            try {
+                                originalOnRenderScheduled.call(this);
+                            } catch (error: any) {
+                                if (
+                                    error.message?.includes("domNode") ||
+                                    error.message?.includes("renderText")
+                                ) {
+                                    console.debug("Suppressed Monaco rendering error:", error.message);
+                                    return;
+                                }
+                                throw error;
+                            }
+                        };
+                    }
                 }
-            },
-            [onListErrors]
-        );
+            } catch {
+                console.debug("Could not patch Monaco rendering coordinator (non-critical)");
+            }
 
-        useEffect(() => {
-            if (!Array.isArray(variablesInputURLs) || variablesInputURLs.length === 0) setReady(true);
-            const f = customFetcher || fetch;
-            if (variablesInputURLs && variablesInputURLs.length > 0 && !ready) {
-                Promise.all(variablesInputURLs.map(v => f(v)))
-                    .then(res =>
-                        Promise.all(res.map(r => r.json())).then(res => {
-                            const uniqueVars = buildUniqueVariables(res);
-                            setVars(v => [...v, ...uniqueVars]);
-                            setReady(true);
-                        })
-                    )
-                    .catch(() => {
-                        setReady(true);
+            // Monaco Editor markers will automatically show error tooltips on hover
+            // No need for custom hover provider as it causes duplicates
+
+            // Ensure theme is applied for proper error highlighting
+            if (!isTestEnvironment && mon?.editor) {
+                // Force theme application
+                mon.editor.setTheme(theme || "vs-dark");
+            }
+
+            let parseContentTO: ReturnType<typeof setTimeout> | undefined;
+            let contentChangeTO: ReturnType<typeof setTimeout> | undefined;
+            parseContent(t);
+
+            subscriptionsRef.current.push(
+                editor.onDidChangeModelContent(() => {
+                    if (parseContentTO) clearTimeout(parseContentTO);
+                    parseContentTO = setTimeout(() => {
+                        // Always validate the live Monaco buffer to avoid stale-prop races.
+                        parseContent(t);
+                    }, 0);
+                    if (!contentChangeTO) {
+                        if (setScript) {
+                            contentChangeTO = setTimeout(() => {
+                                setScript(editor.getValue());
+                                contentChangeTO = undefined;
+                            }, 200);
+                        }
+                    }
+                })
+            );
+
+            subscriptionsRef.current.push(
+                editor.onDidChangeCursorPosition((e: MonacoCursorPositionEvent) => {
+                    setCursor(prev => ({
+                        ...prev,
+                        line: e.position.lineNumber,
+                        column: e.position.column
+                    }));
+                })
+            );
+
+            subscriptionsRef.current.push(
+                editor.onDidChangeCursorSelection((e: MonacoSelectionEvent) => {
+                    const selection = e.selection;
+                    const length = editor?.getModel()?.getValueInRange(selection).length;
+                    setCursor(prev => ({
+                        ...prev,
+                        selectionLength: length || 0
+                    }));
+                    reportSelection(editor);
+                })
+            );
+
+            if (shortcuts) {
+                Object.entries(shortcuts).forEach(([comboString, action]) => {
+                    comboString.split(",").forEach(combo => {
+                        const keys = combo.trim().toLowerCase().split("+");
+                        let keyCode = null;
+                        let keyMod = 0;
+
+                        keys.forEach(k => {
+                            if (k === "ctrl") keyMod |= mon?.KeyMod?.CtrlCmd || 1;
+                            else if (k === "meta") keyMod |= mon?.KeyMod?.CtrlCmd || 1;
+                            else if (k === "shift") keyMod |= mon?.KeyMod?.Shift || 2;
+                            else if (k === "alt") keyMod |= mon?.KeyMod?.Alt || 4;
+                            else {
+                                const upper = k.length === 1 ? k.toUpperCase() : k;
+                                if (mon?.KeyCode && `Key${upper}` in mon.KeyCode) {
+                                    keyCode = mon.KeyCode[`Key${upper}` as keyof typeof mon.KeyCode];
+                                } else if (mon?.KeyCode && upper in mon.KeyCode) {
+                                    keyCode = mon.KeyCode[upper as keyof typeof mon.KeyCode];
+                                } else {
+                                    keyCode = null;
+                                }
+                            }
+                        });
+
+                        if (keyCode !== null) {
+                            editor.addCommand(keyMod | keyCode, (e: any) => {
+                                e?.preventDefault?.();
+                                action();
+                            });
+                        }
                     });
-            }
-        }, [variablesInputURLs]);
-
-        useEffect(() => {
-            if (isEditorReady) {
-                parseContent(tools);
-            }
-        }, [tools.initialRule, isEditorReady, parseContent, tools]);
-
-        const isDark = theme.includes("dark");
-
-        useEffect(() => {
-            if (!ready || !isTestEnvironment || !onSelectionChange) return;
-            const { payload, hasSelection } = buildTextareaSelection(script || "", 0, 0);
-            selectionNotifierRef.current?.notify(payload, hasSelection);
-        }, [ready, onSelectionChange]);
-
-        const handleTextareaSelect = useCallback(
-            (value: string, selectionStart: number, selectionEnd: number) => {
-                const lines = value.substring(0, selectionStart).split("\n");
-                setCursor({
-                    line: lines.length,
-                    column: lines[lines.length - 1].length + 1,
-                    selectionLength: Math.abs(selectionEnd - selectionStart)
                 });
-                const notifier = selectionNotifierRef.current;
-                if (!notifier) return;
-                const { payload, hasSelection } = buildTextareaSelection(
-                    value,
-                    selectionStart,
-                    selectionEnd
-                );
-                notifier.notify(payload, hasSelection);
-            },
-            []
-        );
+            }
 
-        const revealTextareaPosition = useCallback(
-            (line: number, column: number) => {
-                const textarea = textareaRef.current;
-                if (!textarea) return;
+            subscriptionsRef.current.push(
+                editor.onKeyDown((e: MonacoKeyDownEvent) => {
+                    const isMac = /Mac/.test(navigator.userAgent);
+                    const metaPressed = e.metaKey;
+                    const ctrlPressed = e.ctrlKey;
 
-                const offset = lineColumnToOffset(script || "", line, column);
-                textarea.focus();
-                textarea.setSelectionRange(offset, offset);
+                    if (
+                        (isMac && metaPressed && e.code === "Enter") ||
+                        (!isMac && ctrlPressed && e.code === "Enter")
+                    ) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        shortcuts["ctrl+enter, meta+enter"]?.();
+                    }
+                })
+            );
+        },
+        [shortcuts, reportSelection]
+    );
 
-                const lineHeight = Number.parseInt(getComputedStyle(textarea).lineHeight, 10) || 20;
-                textarea.scrollTop = Math.max(0, (line - 1) * lineHeight - textarea.clientHeight / 2);
+    const parseContent = useCallback(
+        (t: Tools, str?: string) => {
+            const editor = editorRef.current;
+            if (!editor) return;
 
-                setCursor({
-                    line: Math.max(1, line),
-                    column: Math.max(1, column),
-                    selectionLength: 0
-                });
-            },
-            [script]
-        );
+            // Check if model exists before parsing
+            const model = editor?.getModel();
+            if (!model) {
+                console.debug("parseContent: model not ready yet");
+                return;
+            }
 
-        const revealMonacoPosition = useCallback(
-            (line: number, column: number) => {
-                const editor = editorRef.current;
-                if (!editor || !isEditorReady) return;
-
-                const position = {
-                    lineNumber: Math.max(1, line),
-                    column: Math.max(1, column)
+            // Use provided string or get value from editor
+            const content = str !== undefined ? str : editor.getValue();
+            const monacoErrors: any[] = validate(t)(content).map(error => {
+                return {
+                    startLineNumber: error.startLine,
+                    startColumn: error.startCol,
+                    endLineNumber: error.endLine,
+                    endColumn: error.endCol,
+                    message: error.message,
+                    severity: isTestEnvironment
+                        ? 1
+                        : monacoRef.current?.editor?.MarkerSeverity?.Error || 8
                 };
-                editor.setPosition(position);
-                editor.revealPosition(position);
-                editor.focus();
-            },
-            [isEditorReady]
-        );
+            });
 
-        useImperativeHandle(
-            ref,
-            () => ({
-                revealPosition(line: number, column: number) {
-                    if (isTestEnvironment) {
-                        revealTextareaPosition(line, column);
-                        return;
-                    }
-                    revealMonacoPosition(line, column);
-                },
-                focus() {
-                    if (isTestEnvironment) {
-                        textareaRef.current?.focus();
-                        return;
-                    }
-                    editorRef.current?.focus();
+            if (!isTestEnvironment && monacoRef.current?.editor) {
+                // Clear existing markers first
+                monacoRef.current.editor.setModelMarkers(model, "owner", []);
+                // Set new markers
+                monacoRef.current.editor.setModelMarkers(model, "owner", monacoErrors);
+            }
+
+            if (onListErrors) {
+                onListErrors(
+                    monacoErrors.map(error => {
+                        return {
+                            line: error.startLineNumber,
+                            column: error.startColumn,
+                            message: error.message
+                        } as Error;
+                    })
+                );
+            }
+        },
+        [onListErrors]
+    );
+
+    useEffect(() => {
+        if (!Array.isArray(variablesInputURLs) || variablesInputURLs.length === 0) setReady(true);
+        const f = customFetcher || fetch;
+        if (variablesInputURLs && variablesInputURLs.length > 0 && !ready) {
+            Promise.all(variablesInputURLs.map(v => f(v)))
+                .then(res =>
+                    Promise.all(res.map(r => r.json())).then(res => {
+                        const uniqueVars = buildUniqueVariables(res);
+                        setVars(v => [...v, ...uniqueVars]);
+                        setReady(true);
+                    })
+                )
+                .catch(() => {
+                    setReady(true);
+                });
+        }
+    }, [variablesInputURLs]);
+
+    useEffect(() => {
+        if (isEditorReady) {
+            parseContent(tools);
+        }
+    }, [tools.initialRule, isEditorReady, parseContent, tools]);
+
+    const isDark = theme.includes("dark");
+
+    useEffect(() => {
+        if (!ready || !isTestEnvironment || !onSelectionChange) return;
+        const { payload, hasSelection } = buildTextareaSelection(script || "", 0, 0);
+        selectionNotifierRef.current?.notify(payload, hasSelection);
+    }, [ready, onSelectionChange]);
+
+    const handleTextareaSelect = useCallback(
+        (value: string, selectionStart: number, selectionEnd: number) => {
+            const lines = value.substring(0, selectionStart).split("\n");
+            setCursor({
+                line: lines.length,
+                column: lines[lines.length - 1].length + 1,
+                selectionLength: Math.abs(selectionEnd - selectionStart)
+            });
+            const notifier = selectionNotifierRef.current;
+            if (!notifier) return;
+            const { payload, hasSelection } = buildTextareaSelection(
+                value,
+                selectionStart,
+                selectionEnd
+            );
+            notifier.notify(payload, hasSelection);
+        },
+        []
+    );
+
+    const revealTextareaPosition = useCallback(
+        (line: number, column: number) => {
+            const textarea = textareaRef.current;
+            if (!textarea) return;
+
+            const offset = lineColumnToOffset(script || "", line, column);
+            textarea.focus();
+            textarea.setSelectionRange(offset, offset);
+
+            const lineHeight = Number.parseInt(getComputedStyle(textarea).lineHeight, 10) || 20;
+            textarea.scrollTop = Math.max(0, (line - 1) * lineHeight - textarea.clientHeight / 2);
+
+            setCursor({
+                line: Math.max(1, line),
+                column: Math.max(1, column),
+                selectionLength: 0
+            });
+        },
+        [script]
+    );
+
+    const revealMonacoPosition = useCallback(
+        (line: number, column: number) => {
+            const editor = editorRef.current;
+            if (!editor || !isEditorReady) return;
+
+            const position = {
+                lineNumber: Math.max(1, line),
+                column: Math.max(1, column)
+            };
+            editor.setPosition(position);
+            editor.revealPosition(position);
+            editor.focus();
+        },
+        [isEditorReady]
+    );
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            revealPosition(line: number, column: number) {
+                if (isTestEnvironment) {
+                    revealTextareaPosition(line, column);
+                    return;
                 }
-            }),
-            [revealMonacoPosition, revealTextareaPosition]
-        );
+                revealMonacoPosition(line, column);
+            },
+            focus() {
+                if (isTestEnvironment) {
+                    textareaRef.current?.focus();
+                    return;
+                }
+                editorRef.current?.focus();
+            }
+        }),
+        [revealMonacoPosition, revealTextareaPosition]
+    );
 
-        if (!ready) return null;
+    if (!ready) return null;
 
-        const bannerHeight = displayFooter ? 22 : 0;
+    const bannerHeight = displayFooter ? 22 : 0;
 
-        return (
-            <div style={{ position: "relative", height, width }}>
-                <div style={{ height: `calc(100% - ${bannerHeight}px)` }}>
-                    {isTestEnvironment ? (
-                        // Test environment - render a simple textarea
-                        <textarea
-                            ref={textareaRef}
-                            data-testid="monaco-editor-mock"
-                            value={script || ""}
-                            onChange={e => {
-                                setScript?.(e.target.value);
-                                handleTextareaSelect(
-                                    e.target.value,
-                                    e.target.selectionStart,
-                                    e.target.selectionEnd
-                                );
-                            }}
-                            onSelect={e => {
-                                const textarea = e.currentTarget;
-                                handleTextareaSelect(
-                                    textarea.value,
-                                    textarea.selectionStart,
-                                    textarea.selectionEnd
-                                );
-                            }}
-                            style={{
-                                width: "100%",
-                                height: "100%",
-                                border: "1px solid #ccc",
-                                fontFamily: "monospace",
-                                fontSize: "14px",
-                                padding: "10px",
-                                resize: "none"
-                            }}
-                            placeholder="Editor content (test mode)"
-                        />
-                    ) : (
-                        // Production environment - use Monaco Editor
-                        <MonacoEditor
-                            value={script}
-                            height="100%"
-                            width="100%"
-                            onMount={(e: any, m: any) => {
-                                parseContent(tools);
-                                onMount(e, m, tools);
-                                getEditorWillMount(tools)({
-                                    variables: vars,
-                                    editor: e
-                                })(m);
-                            }}
-                            theme={theme}
-                            language={tools.id}
-                            options={options}
-                        />
-                    )}
-                </div>
-                {displayFooter && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            height: bannerHeight,
-                            width: "100%",
-                            bottom: 0,
-                            left: 0,
-                            gap: "12px",
-                            padding: "4px 8px",
-                            background: isDark ? "#1e1e1e" : "#f3f3f3",
-                            color: isDark ? "#ccc" : "#333",
-                            borderTop: `1px solid ${isDark ? "#333" : "#ccc"}`,
-                            zIndex: 10,
-                            boxSizing: "border-box"
+    return (
+        <div style={{ position: "relative", height, width }}>
+            <div style={{ height: `calc(100% - ${bannerHeight}px)` }}>
+                {isTestEnvironment ? (
+                    // Test environment - render a simple textarea
+                    <textarea
+                        ref={textareaRef}
+                        data-testid="monaco-editor-mock"
+                        value={script || ""}
+                        onChange={e => {
+                            setScript?.(e.target.value);
+                            handleTextareaSelect(
+                                e.target.value,
+                                e.target.selectionStart,
+                                e.target.selectionEnd
+                            );
                         }}
-                    >
-                        <EditorFooter cursor={cursor} FooterComponent={FooterComponent} />
-                    </div>
+                        onSelect={e => {
+                            const textarea = e.currentTarget;
+                            handleTextareaSelect(
+                                textarea.value,
+                                textarea.selectionStart,
+                                textarea.selectionEnd
+                            );
+                        }}
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                            border: "1px solid #ccc",
+                            fontFamily: "monospace",
+                            fontSize: "14px",
+                            padding: "10px",
+                            resize: "none"
+                        }}
+                        placeholder="Editor content (test mode)"
+                    />
+                ) : (
+                    // Production environment - use Monaco Editor
+                    <MonacoEditor
+                        value={script}
+                        height="100%"
+                        width="100%"
+                        onMount={(e: any, m: any) => {
+                            parseContent(tools);
+                            onMount(e, m, tools);
+                            getEditorWillMount(tools)({
+                                variables: vars,
+                                editor: e
+                            })(m);
+                        }}
+                        theme={theme}
+                        language={tools.id}
+                        options={options}
+                    />
                 )}
+            </div>
+            {displayFooter && (
+                <div
+                    style={{
+                        position: "absolute",
+                        height: bannerHeight,
+                        width: "100%",
+                        bottom: 0,
+                        left: 0,
+                        gap: "12px",
+                        padding: "4px 8px",
+                        background: isDark ? "#1e1e1e" : "#f3f3f3",
+                        color: isDark ? "#ccc" : "#333",
+                        borderTop: `1px solid ${isDark ? "#333" : "#ccc"}`,
+                        zIndex: 10,
+                        boxSizing: "border-box"
+                    }}
+                >
+                    <EditorFooter cursor={cursor} FooterComponent={FooterComponent} />
+                </div>
+            )}
         </div>
     );
 }

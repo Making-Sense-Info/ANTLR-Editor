@@ -5,10 +5,7 @@ import type { StorybookConfig } from "@storybook/react-webpack5";
 
 const storybookDir = path.dirname(fileURLToPath(import.meta.url));
 
-const reactDocgenExclude = [
-    /\.storybook\//,
-    /storybook-(config-entry|stories|preview|docs|manager)/
-];
+const reactDocgenExclude = [/\.storybook\//, /storybook-(config-entry|stories|preview|docs|manager)/];
 
 type WebpackRule = {
     loader?: string;
@@ -49,8 +46,7 @@ const config: StorybookConfig = {
     typescript: {
         reactDocgen: "react-docgen-typescript",
         reactDocgenTypescriptOptions: {
-            propFilter: prop =>
-                prop.parent ? !/node_modules/.test(prop.parent.fileName) : true
+            propFilter: prop => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true)
         }
     },
     webpackFinal: async webpackConfig => {
