@@ -22,10 +22,10 @@ export type EditorHandle = {
     focus(): void;
 };
 
-// Check if we're in a test environment
-const isTestEnvironment =
-    typeof globalThis !== "undefined" &&
-    (globalThis as { process?: { env?: { NODE_ENV?: string } } }).process?.env?.NODE_ENV === "test";
+// Vitest sets process.env.VITEST; NODE_ENV alone is unreliable in CI (e.g. production).
+const processEnv = (globalThis as { process?: { env?: { NODE_ENV?: string; VITEST?: string } } })
+    .process?.env;
+const isTestEnvironment = processEnv?.VITEST === "true" || processEnv?.NODE_ENV === "test";
 
 // Import Monaco Editor components directly
 import MonacoEditorComponent from "@monaco-editor/react";
@@ -180,6 +180,10 @@ function Editor({
 
     // Handle Monaco disposal errors gracefully without global monkey patches.
     useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
         const handleMonacoError = (event: ErrorEvent) => {
             if (shouldSuppressMonacoError(event.error ?? event.message)) {
                 // Suppress Monaco cleanup errors - they're harmless during layout changes
@@ -462,22 +466,39 @@ function Editor({
     );
 
     useEffect(() => {
-        if (!Array.isArray(variablesInputURLs) || variablesInputURLs.length === 0) setReady(true);
-        const f = customFetcher || fetch;
-        if (variablesInputURLs && variablesInputURLs.length > 0 && !ready) {
-            Promise.all(variablesInputURLs.map(v => f(v)))
-                .then(res =>
-                    Promise.all(res.map(r => r.json())).then(res => {
-                        const uniqueVars = buildUniqueVariables(res);
-                        setVars(v => [...v, ...uniqueVars]);
-                        setReady(true);
-                    })
-                )
-                .catch(() => {
-                    setReady(true);
-                });
+        if (!Array.isArray(variablesInputURLs) || variablesInputURLs.length === 0) {
+            setReady(true);
+            return;
         }
-    }, [variablesInputURLs]);
+
+        if (ready) {
+            return;
+        }
+
+        let cancelled = false;
+        const f = customFetcher || fetch;
+
+        Promise.all(variablesInputURLs.map(v => f(v)))
+            .then(res =>
+                Promise.all(res.map(r => r.json())).then(res => {
+                    if (cancelled) {
+                        return;
+                    }
+                    const uniqueVars = buildUniqueVariables(res);
+                    setVars(v => [...v, ...uniqueVars]);
+                    setReady(true);
+                })
+            )
+            .catch(() => {
+                if (!cancelled) {
+                    setReady(true);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [variablesInputURLs, customFetcher, ready]);
 
     useEffect(() => {
         if (isEditorReady) {

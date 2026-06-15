@@ -126,31 +126,29 @@ vi.mock("@monaco-editor/react", () => ({
     default: vi.fn(({ onMount }) => {
         // Simulate component mounting
         if (onMount) {
-            setTimeout(() => {
-                const mockEditor = {
-                    dispose: vi.fn(),
-                    getValue: vi.fn(() => ""),
-                    setValue: vi.fn(),
-                    focus: vi.fn(),
-                    setPosition: vi.fn(),
-                    revealPosition: vi.fn(),
-                    onDidChangeModelContent: vi.fn(() => ({ dispose: vi.fn() })),
-                    onDidChangeCursorPosition: vi.fn(() => ({ dispose: vi.fn() })),
-                    onDidChangeCursorSelection: vi.fn(() => ({ dispose: vi.fn() })),
-                    addCommand: vi.fn(),
-                    onKeyDown: vi.fn(() => ({ dispose: vi.fn() })),
-                    getModel: vi.fn(() => ({ dispose: vi.fn() }))
-                };
-                const mockMonaco = {
-                    editor: {
-                        setModelMarkers: vi.fn(),
-                        MarkerSeverity: { Error: 1, Warning: 2, Info: 3, Hint: 4 }
-                    },
-                    KeyMod: { CtrlCmd: 1, Shift: 2, Alt: 4 },
-                    KeyCode: { KeyS: 1, Enter: 2, KeyZ: 3, KeyY: 4 }
-                };
-                onMount(mockEditor, mockMonaco);
-            }, 0);
+            const mockEditor = {
+                dispose: vi.fn(),
+                getValue: vi.fn(() => ""),
+                setValue: vi.fn(),
+                focus: vi.fn(),
+                setPosition: vi.fn(),
+                revealPosition: vi.fn(),
+                onDidChangeModelContent: vi.fn(() => ({ dispose: vi.fn() })),
+                onDidChangeCursorPosition: vi.fn(() => ({ dispose: vi.fn() })),
+                onDidChangeCursorSelection: vi.fn(() => ({ dispose: vi.fn() })),
+                addCommand: vi.fn(),
+                onKeyDown: vi.fn(() => ({ dispose: vi.fn() })),
+                getModel: vi.fn(() => ({ dispose: vi.fn() }))
+            };
+            const mockMonaco = {
+                editor: {
+                    setModelMarkers: vi.fn(),
+                    MarkerSeverity: { Error: 1, Warning: 2, Info: 3, Hint: 4 }
+                },
+                KeyMod: { CtrlCmd: 1, Shift: 2, Alt: 4 },
+                KeyCode: { KeyS: 1, Enter: 2, KeyZ: 3, KeyY: 4 }
+            };
+            onMount(mockEditor, mockMonaco);
         }
         return null;
     }),

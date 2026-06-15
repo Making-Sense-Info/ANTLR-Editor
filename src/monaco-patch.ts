@@ -3,6 +3,10 @@ import { shouldSuppressMonacoError } from "./utils/monaco-errors";
 let isPatchApplied = false;
 
 export const applyMonacoPatch = (): (() => void) => {
+    if (typeof window === "undefined") {
+        return () => undefined;
+    }
+
     if (isPatchApplied) {
         return () => undefined;
     }
