@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties, type Ref } from "react";
 import Editor, { EditorHandle } from "../Editor";
 import * as tools from "@making-sense/vtl-2-1-antlr-tools-ts";
 import { getSuggestionsFromRange, monarchDefinition } from "@making-sense/vtl-2-1-monaco-tools-ts";
@@ -26,8 +26,19 @@ line18 := 18;
 line19 := 19;
 line20 := 20;`;
 
-const EditorForStories = forwardRef<EditorHandle, any>((props, ref) => {
-    const { initialRule = "start", shortcuts = {}, displayFooter = true, ...rest } = props;
+function EditorForStories({
+    ref,
+    initialRule = "start",
+    shortcuts = {},
+    displayFooter = true,
+    ...rest
+}: {
+    ref?: Ref<EditorHandle>;
+    initialRule?: string;
+    shortcuts?: Record<string, () => void>;
+    displayFooter?: boolean;
+    [key: string]: unknown;
+}) {
     return (
         <Editor
             ref={ref}
@@ -37,9 +48,7 @@ const EditorForStories = forwardRef<EditorHandle, any>((props, ref) => {
             tools={{ ...customTools, initialRule }}
         />
     );
-});
-
-EditorForStories.displayName = "EditorForStories";
+}
 
 export default {
     title: "EditorHandle",

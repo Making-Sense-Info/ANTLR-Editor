@@ -1,6 +1,6 @@
 {
     "name": "@making-sense/antlr-editor",
-    "version": "2.8.0",
+    "version": "2.9.0",
     "description": "ANTLR Typescript editor",
     "repository": {
         "type": "git",
@@ -17,8 +17,8 @@
         "lint": "npm run lint:check -- --fix",
         "format": "prettier \"**/*.{ts,tsx,json,md}\" --write",
         "format:check": "prettier \"**/*.{ts,tsx,json,md}\" --list-different",
-        "storybook": "start-storybook -p 9999",
-        "build-storybook": "build-storybook"
+        "storybook": "storybook dev -p 9999 --no-open --initial-path=/docs/editorhandle--docs",
+        "build-storybook": "storybook build"
     },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -54,16 +54,11 @@
         "@making-sense/vtl-2-0-monaco-tools-ts": "^0.1.0",
         "@making-sense/vtl-2-1-antlr-tools-ts": "^1.0.5",
         "@making-sense/vtl-2-1-monaco-tools-ts": "^1.0.1",
-        "@storybook/addon-actions": "^6.5.9",
-        "@storybook/addon-essentials": "^6.5.9",
-        "@storybook/addon-links": "^6.5.9",
-        "@storybook/addons": "^6.5.9",
-        "@storybook/builder-webpack5": "^6.5.9",
-        "@storybook/manager-webpack5": "^6.5.9",
-        "@storybook/node-logger": "^6.5.9",
-        "@storybook/preset-create-react-app": "^4.1.2",
-        "@storybook/react": "^6.5.9",
-        "@storybook/theming": "^6.5.9",
+        "@storybook/addon-docs": "10.4.0",
+        "@storybook/addon-links": "10.4.0",
+        "@storybook/addon-webpack5-compiler-swc": "^3.0.0",
+        "@storybook/react": "10.4.0",
+        "@storybook/react-webpack5": "10.4.0",
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
@@ -71,26 +66,26 @@
         "@types/debug": "^4.1.13",
         "@types/node": "^22.7.4",
         "@types/path-browserify": "^1.0.3",
-        "@types/react": "^18.3.11",
+        "@types/react": "^19.2.17",
+        "@types/react-dom": "^19.2.3",
         "@typescript-eslint/eslint-plugin": "^8.59.1",
         "@typescript-eslint/parser": "^8.59.1",
         "@vitest/coverage-v8": "^3.2.4",
-        "babel-plugin-named-exports-order": "0.0.2",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
-        "eslint-plugin-storybook": "^0.8.0",
+        "eslint-plugin-storybook": "10.4.0",
         "husky": "^9.1.7",
         "jsdom": "^27.1.0",
         "lint-staged": "^15.2.10",
         "path-browserify": "^1.0.1",
         "prettier": "^3.8.3",
         "prop-types": "15.8.1",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
-        "react-scripts": "^5.0.1",
-        "storybook-dark-mode": "^1.1.0",
+        "react": "^19.2.7",
+        "react-dom": "^19.2.7",
+        "storybook": "10.4.0",
+        "storybook-dark-mode": "^5.0.0",
         "ts-node": "^10.9.2",
-        "typescript": "^4.8.2",
+        "typescript": "^5.8.3",
         "vitest": "^3.2.4",
         "webpack": "5.106.2"
     },
@@ -99,10 +94,14 @@
         "@monaco-editor/react": "^4.7.0",
         "monaco-editor": "^0.52.2"
     },
+    "peerDependencies": {
+        "react": ">=19.0.0",
+        "react-dom": ">=19.0.0"
+    },
     "publishConfig": {
         "access": "public"
     },
     "engines": {
-        "node": ">=20.0.0"
+        "node": ">=20.19.0"
     }
 }

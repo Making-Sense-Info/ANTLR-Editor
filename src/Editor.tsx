@@ -1,4 +1,4 @@
-import { FC, forwardRef, useState, useEffect, useRef, useCallback, useImperativeHandle } from "react";
+import { FC, useState, useEffect, useRef, useCallback, useImperativeHandle, type Ref } from "react";
 import { validate } from "./utils/ParserFacade";
 import { getEditorWillMount, cleanupProviders } from "./utils/providers";
 import { Tools, Error, Variables } from "./model";
@@ -72,6 +72,7 @@ interface MonacoKeyDownEvent {
 }
 
 type EditorProps = {
+    ref?: Ref<EditorHandle>;
     script?: string;
     setScript?: (value: string) => void;
     customFetcher?: (url: string) => Promise<any>;
@@ -89,28 +90,25 @@ type EditorProps = {
     onSelectionChange?: (selection: EditorSelection) => void;
 };
 
-const Editor = forwardRef<EditorHandle, EditorProps>(
-    (
-        {
-            script,
-            setScript,
-            onListErrors,
-            customFetcher,
-            variables,
-            variablesInputURLs,
-            tools,
-            height = "50vh",
-            width = "100%",
-            theme = "vs-dark",
-            options,
-            shortcuts,
-            FooterComponent,
-            displayFooter = true,
-            onSelectionChange
-        },
-        ref
-    ) => {
-        const editorRef = useRef<any>(null);
+function Editor({
+    ref,
+    script,
+    setScript,
+    onListErrors,
+    customFetcher,
+    variables,
+    variablesInputURLs,
+    tools,
+    height = "50vh",
+    width = "100%",
+    theme = "vs-dark",
+    options,
+    shortcuts,
+    FooterComponent,
+    displayFooter = true,
+    onSelectionChange
+}: EditorProps) {
+    const editorRef = useRef<any>(null);
         const textareaRef = useRef<HTMLTextAreaElement | null>(null);
         const monacoRef = useRef<any>(null);
         const [ready, setReady] = useState<boolean>(false);
@@ -659,11 +657,8 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
                         <EditorFooter cursor={cursor} FooterComponent={FooterComponent} />
                     </div>
                 )}
-            </div>
-        );
-    }
-);
-
-Editor.displayName = "Editor";
+        </div>
+    );
+}
 
 export default Editor;
