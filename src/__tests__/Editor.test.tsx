@@ -1,7 +1,8 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import React, { createRef } from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import Editor from "../Editor";
+import Editor, { EditorHandle } from "../Editor";
+import { lineColumnToOffset } from "../utils/selection";
 
 // Mock tools - using proper types
 const mockTools = {
@@ -304,5 +305,48 @@ describe("Editor", () => {
 
         // In test mode, we just verify the component renders
         expect(screen.getByTestId("monaco-editor-mock")).toBeDefined();
+    });
+
+    describe("EditorHandle ref", () => {
+        it("focus focuses the textarea in test mode", () => {
+            const ref = createRef<EditorHandle>();
+            render(<Editor ref={ref} {...defaultProps} />);
+
+            ref.current?.focus();
+
+            expect(document.activeElement).toBe(screen.getByTestId("monaco-editor-mock"));
+        });
+
+        it("revealPosition moves caret to line and column", () => {
+            const ref = createRef<EditorHandle>();
+            const script = "line1\nline2\nline3";
+            render(<Editor ref={ref} {...defaultProps} script={script} />);
+
+            ref.current?.revealPosition(2, 3);
+
+            const textarea = screen.getByTestId("monaco-editor-mock") as HTMLTextAreaElement;
+            const expectedOffset = lineColumnToOffset(script, 2, 3);
+            expect(textarea.selectionStart).toBe(expectedOffset);
+            expect(textarea.selectionEnd).toBe(expectedOffset);
+            expect(document.activeElement).toBe(textarea);
+        });
+
+        it("revealPosition updates footer cursor position", async () => {
+            const ref = createRef<EditorHandle>();
+            render(<Editor ref={ref} {...defaultProps} script="a\nb\nc" />);
+
+            ref.current?.revealPosition(3, 1);
+
+            await waitFor(() => {
+                expect(screen.getByTestId("editor-footer").textContent).toContain("Line 3, Column 1");
+            });
+        });
+
+        it("revealPosition is a no-op before textarea is mounted", () => {
+            const ref = createRef<EditorHandle>();
+            render(<Editor ref={ref} {...defaultProps} variablesInputURLs={["http://pending"]} />);
+
+            expect(() => ref.current?.revealPosition(1, 1)).not.toThrow();
+        });
     });
 });
