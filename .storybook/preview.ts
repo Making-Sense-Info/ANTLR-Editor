@@ -19,7 +19,11 @@ const preview: Preview = {
             current: "dark"
         },
         options: {
-            storySort: (a, b) => (a.title < b.title ? -1 : 1)
+            storySort: (a, b) => {
+                if (a.title === "EditorHandle") return -1;
+                if (b.title === "EditorHandle") return 1;
+                return a.title < b.title ? -1 : 1;
+            }
         }
     }
 };
