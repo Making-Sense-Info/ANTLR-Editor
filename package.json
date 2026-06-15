@@ -1,6 +1,6 @@
 {
     "name": "@making-sense/antlr-editor",
-    "version": "2.9.0",
+    "version": "2.9.1",
     "description": "ANTLR Typescript editor",
     "repository": {
         "type": "git",
@@ -9,6 +9,7 @@
     "scripts": {
         "prepare": "husky install",
         "build": "tsc",
+        "prepublishOnly": "npm run build",
         "test": "vitest",
         "test:run": "vitest run",
         "test:coverage": "vitest run --coverage",
@@ -92,6 +93,7 @@
     "dependencies": {
         "@making-sense/antlr4ng": "^3.0.4",
         "@monaco-editor/react": "^4.7.0",
+        "debug": "^4.4.3",
         "monaco-editor": "^0.52.2"
     },
     "peerDependencies": {
