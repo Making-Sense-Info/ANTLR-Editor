@@ -23,8 +23,8 @@ export type EditorHandle = {
 };
 
 // Vitest sets process.env.VITEST; NODE_ENV alone is unreliable in CI (e.g. production).
-const processEnv = (globalThis as { process?: { env?: { NODE_ENV?: string; VITEST?: string } } })
-    .process?.env;
+const processEnv = (globalThis as { process?: { env?: { NODE_ENV?: string; VITEST?: string } } }).process
+    ?.env;
 const isTestEnvironment = processEnv?.VITEST === "true" || processEnv?.NODE_ENV === "test";
 
 // Import Monaco Editor components directly
