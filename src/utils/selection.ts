@@ -34,6 +34,27 @@ export function offsetToLineColumn(text: string, offset: number): { line: number
     };
 }
 
+/** 1-based line/column → UTF-16 offset (Monaco-compatible). */
+export function lineColumnToOffset(text: string, line: number, column: number): number {
+    if (line < 1) {
+        return 0;
+    }
+
+    const lines = text.split("\n");
+    if (line > lines.length) {
+        return text.length;
+    }
+
+    let offset = 0;
+    for (let i = 0; i < line - 1; i++) {
+        offset += lines[i].length + 1;
+    }
+
+    const lineText = lines[line - 1] ?? "";
+    const clampedColumn = Math.max(1, Math.min(column, lineText.length + 1));
+    return offset + clampedColumn - 1;
+}
+
 export function buildMonacoSelection(editor: MonacoEditorSelectionSource): {
     payload: EditorSelection;
     hasSelection: boolean;

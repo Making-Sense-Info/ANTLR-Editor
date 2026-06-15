@@ -4,6 +4,7 @@ import {
     buildMonacoSelection,
     buildTextareaSelection,
     createSelectionChangeNotifier,
+    lineColumnToOffset,
     offsetToLineColumn
 } from "../../utils/selection";
 
@@ -15,6 +16,31 @@ describe("selection utils", () => {
 
         it("accounts for newlines", () => {
             expect(offsetToLineColumn("aa\nbb\ncc", 5)).toEqual({ line: 2, column: 3 });
+        });
+    });
+
+    describe("lineColumnToOffset", () => {
+        it("returns 0 for line 1 column 1", () => {
+            expect(lineColumnToOffset("hello", 1, 1)).toBe(0);
+        });
+
+        it("accounts for newlines", () => {
+            expect(lineColumnToOffset("aa\nbb\ncc", 2, 3)).toBe(5);
+        });
+
+        it("clamps column past end of line", () => {
+            expect(lineColumnToOffset("abc", 1, 99)).toBe(3);
+        });
+
+        it("returns text length when line is past end", () => {
+            expect(lineColumnToOffset("a\nb", 5, 1)).toBe(3);
+        });
+
+        it("round-trips with offsetToLineColumn", () => {
+            const text = "first\nsecond line\nthird";
+            const offset = 12;
+            const { line, column } = offsetToLineColumn(text, offset);
+            expect(lineColumnToOffset(text, line, column)).toBe(offset);
         });
     });
 
