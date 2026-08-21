@@ -19,6 +19,7 @@ const preview: Preview = {
             current: "dark"
         },
         options: {
+            // Must stay untyped: Storybook eval()s this as plain JS for the story index.
             storySort: (a, b) => {
                 if (a.title === "EditorHandle") return -1;
                 if (b.title === "EditorHandle") return 1;

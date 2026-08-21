@@ -1,7 +1,6 @@
 import * as EditorApi from "monaco-editor";
-import { editor, IDisposable, Position } from "monaco-editor";
-import * as Monaco from "monaco-editor/esm/vs/editor/editor.api";
-import { languages } from "monaco-editor/esm/vs/editor/editor.api";
+import * as Monaco from "monaco-editor";
+import { editor, IDisposable, Position, languages } from "monaco-editor";
 import { GrammarGraph } from "../grammar-graph/grammarGraph";
 import { createLexer, createParser } from "./ParserFacade";
 import { TokensProvider } from "./tokensProvider";

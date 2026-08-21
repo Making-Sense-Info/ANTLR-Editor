@@ -1,8 +1,12 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { applyMonacoPatch } from "../monaco-patch";
 
 describe("applyMonacoPatch", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it("registers and unregisters global listeners", () => {
         const addSpy = vi.spyOn(window, "addEventListener");
         const removeSpy = vi.spyOn(window, "removeEventListener");
@@ -22,10 +26,13 @@ describe("applyMonacoPatch", () => {
         const addSpy = vi.spyOn(window, "addEventListener");
 
         const cleanupA = applyMonacoPatch();
-        const cleanupB = applyMonacoPatch();
+        const callsAfterFirst = addSpy.mock.calls.filter(args => args[0] === "error").length;
 
-        const errorRegistrations = addSpy.mock.calls.filter(args => args[0] === "error");
-        expect(errorRegistrations).toHaveLength(1);
+        const cleanupB = applyMonacoPatch();
+        const callsAfterSecond = addSpy.mock.calls.filter(args => args[0] === "error").length;
+
+        expect(callsAfterFirst).toBe(1);
+        expect(callsAfterSecond).toBe(callsAfterFirst);
 
         cleanupB();
         cleanupA();
