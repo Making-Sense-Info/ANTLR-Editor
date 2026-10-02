@@ -1,6 +1,6 @@
 {
     "name": "@making-sense/antlr-editor",
-    "version": "2.9.4",
+    "version": "2.9.5",
     "description": "ANTLR Typescript editor",
     "repository": {
         "type": "git",

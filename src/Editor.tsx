@@ -80,6 +80,11 @@ type EditorProps = {
     variablesInputURLs?: string[];
     tools: Tools;
     onListErrors?: (errors: Error[]) => void;
+    /**
+     * Optional host filter applied before Monaco markers and `onListErrors`.
+     * Useful for temporary compatibility exceptions (e.g. Pogues `$VAR$`).
+     */
+    filterErrors?: (errors: Error[], script: string) => Error[];
     height?: string;
     width?: string;
     theme?: string;
@@ -95,6 +100,7 @@ function Editor({
     script,
     setScript,
     onListErrors,
+    filterErrors,
     customFetcher,
     variables,
     variablesInputURLs,
@@ -124,6 +130,15 @@ function Editor({
     // Cleanup function to properly dispose of Monaco resources
     const subscriptionsRef = useRef<IDisposable[]>([]);
     const selectionNotifierRef = useRef<SelectionChangeNotifier | null>(null);
+    // Keep latest tools / onListErrors / filterErrors without re-creating
+    // parseContent (avoids parent→setState→new callback→re-parse loops).
+    const onListErrorsRef = useRef(onListErrors);
+    onListErrorsRef.current = onListErrors;
+    const filterErrorsRef = useRef(filterErrors);
+    filterErrorsRef.current = filterErrors;
+    const toolsRef = useRef(tools);
+    toolsRef.current = tools;
+    const parseContentRef = useRef<(t: Tools, str?: string) => void>(() => {});
 
     useEffect(() => {
         selectionNotifierRef.current = onSelectionChange
@@ -235,7 +250,7 @@ function Editor({
     }, []);
 
     const onMount = useCallback(
-        (editor: any, mon: any, t: Tools) => {
+        (editor: any, mon: any, _t: Tools) => {
             editorRef.current = editor;
             monacoRef.current = mon;
             setIsEditorReady(true);
@@ -320,14 +335,14 @@ function Editor({
 
             let parseContentTO: ReturnType<typeof setTimeout> | undefined;
             let contentChangeTO: ReturnType<typeof setTimeout> | undefined;
-            parseContent(t);
+            parseContentRef.current(toolsRef.current);
 
             subscriptionsRef.current.push(
                 editor.onDidChangeModelContent(() => {
                     if (parseContentTO) clearTimeout(parseContentTO);
                     parseContentTO = setTimeout(() => {
                         // Always validate the live Monaco buffer to avoid stale-prop races.
-                        parseContent(t);
+                        parseContentRef.current(toolsRef.current);
                     }, 0);
                     if (!contentChangeTO) {
                         if (setScript) {
@@ -413,57 +428,63 @@ function Editor({
                 })
             );
         },
-        [shortcuts, reportSelection]
+        [shortcuts, reportSelection, setScript, theme]
     );
 
-    const parseContent = useCallback(
-        (t: Tools, str?: string) => {
-            const editor = editorRef.current;
-            if (!editor) return;
+    const parseContent = useCallback((t: Tools, str?: string) => {
+        const editor = editorRef.current;
+        if (!editor) return;
 
-            // Check if model exists before parsing
-            const model = editor?.getModel();
-            if (!model) {
-                console.debug("parseContent: model not ready yet");
-                return;
-            }
+        // Check if model exists before parsing
+        const model = editor?.getModel();
+        if (!model) {
+            console.debug("parseContent: model not ready yet");
+            return;
+        }
 
-            // Use provided string or get value from editor
-            const content = str !== undefined ? str : editor.getValue();
-            const monacoErrors: any[] = validate(t)(content).map(error => {
-                return {
-                    startLineNumber: error.startLine,
-                    startColumn: error.startCol,
-                    endLineNumber: error.endLine,
-                    endColumn: error.endCol,
-                    message: error.message,
-                    severity: isTestEnvironment
-                        ? 1
-                        : monacoRef.current?.editor?.MarkerSeverity?.Error || 8
-                };
-            });
+        // Use provided string or get value from editor
+        const content = str !== undefined ? str : editor.getValue();
+        const monacoApi = monacoRef.current;
+        // monaco ≥ 0.52: MarkerSeverity is top-level; older: under editor.
+        const errorSeverity =
+            monacoApi?.MarkerSeverity?.Error ?? monacoApi?.editor?.MarkerSeverity?.Error ?? 8;
+        // ANTLR columns are 0-based; Monaco markers / host apps expect 1-based.
+        const monacoErrors: any[] = validate(t)(content).map(error => {
+            return {
+                startLineNumber: error.startLine,
+                startColumn: error.startCol + 1,
+                endLineNumber: error.endLine,
+                endColumn: error.endCol + 1,
+                message: error.message,
+                severity: isTestEnvironment ? 1 : errorSeverity
+            };
+        });
 
-            if (!isTestEnvironment && monacoRef.current?.editor) {
-                // Clear existing markers first
-                monacoRef.current.editor.setModelMarkers(model, "owner", []);
-                // Set new markers
-                monacoRef.current.editor.setModelMarkers(model, "owner", monacoErrors);
-            }
+        let listedErrors: Error[] = monacoErrors.map(error => ({
+            line: error.startLineNumber,
+            column: error.startColumn,
+            message: error.message
+        }));
+        if (filterErrorsRef.current) {
+            listedErrors = filterErrorsRef.current(listedErrors, content);
+        }
+        const listedKeys = new Set(
+            listedErrors.map(error => `${error.line}|${error.column}|${error.message}`)
+        );
+        const markersToSet = monacoErrors.filter(error =>
+            listedKeys.has(`${error.startLineNumber}|${error.startColumn}|${error.message}`)
+        );
 
-            if (onListErrors) {
-                onListErrors(
-                    monacoErrors.map(error => {
-                        return {
-                            line: error.startLineNumber,
-                            column: error.startColumn,
-                            message: error.message
-                        } as Error;
-                    })
-                );
-            }
-        },
-        [onListErrors]
-    );
+        if (!isTestEnvironment && monacoApi?.editor) {
+            // Clear existing markers first
+            monacoApi.editor.setModelMarkers(model, "owner", []);
+            // Set new markers (after optional host filter)
+            monacoApi.editor.setModelMarkers(model, "owner", markersToSet);
+        }
+
+        onListErrorsRef.current?.(listedErrors);
+    }, []);
+    parseContentRef.current = parseContent;
 
     useEffect(() => {
         if (!Array.isArray(variablesInputURLs) || variablesInputURLs.length === 0) {
@@ -502,9 +523,9 @@ function Editor({
 
     useEffect(() => {
         if (isEditorReady) {
-            parseContent(tools);
+            parseContent(toolsRef.current);
         }
-    }, [tools.initialRule, isEditorReady, parseContent, tools]);
+    }, [tools.initialRule, isEditorReady, parseContent]);
 
     const isDark = theme.includes("dark");
 
@@ -639,12 +660,13 @@ function Editor({
                         height="100%"
                         width="100%"
                         onMount={(e: any, m: any) => {
-                            parseContent(tools);
-                            onMount(e, m, tools);
-                            getEditorWillMount(tools)({
+                            // Set refs first (parseContent needs editorRef / monacoRef).
+                            onMount(e, m, toolsRef.current);
+                            getEditorWillMount(toolsRef.current)({
                                 variables: vars,
                                 editor: e
                             })(m);
+                            parseContent(toolsRef.current);
                         }}
                         theme={theme}
                         language={tools.id}
