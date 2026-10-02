@@ -250,7 +250,7 @@ function Editor({
     }, []);
 
     const onMount = useCallback(
-        (editor: any, mon: any, _t: Tools) => {
+        (editor: any, mon: any) => {
             editorRef.current = editor;
             monacoRef.current = mon;
             setIsEditorReady(true);
@@ -661,7 +661,7 @@ function Editor({
                         width="100%"
                         onMount={(e: any, m: any) => {
                             // Set refs first (parseContent needs editorRef / monacoRef).
-                            onMount(e, m, toolsRef.current);
+                            onMount(e, m);
                             getEditorWillMount(toolsRef.current)({
                                 variables: vars,
                                 editor: e
